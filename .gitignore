@@ -1,0 +1,83 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+venv/
+env/
+ENV/
+.venv
+.env
+.env.local
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+data/uploads/*
+!data/uploads/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/vector_store/*
+!data/vector_store/.gitkeep
+data/cache/*
+!data/cache/.gitkeep
+
+# Logs
+logs/
+*.log
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+
+# ChromaDB
+chroma.db/
+*.db
+*.sqlite3
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+*.ipynb
+
+# OS
+Thumbs.db
+desktop.ini
+
+# Temporary Files
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Models (large files)
+models/
+*.bin
+*.h5
+*.pkl
+*.pth
+
+# API Keys & Secrets
+secrets/
+credentials/
+*.key
+*.pem
