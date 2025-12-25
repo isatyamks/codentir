@@ -93,14 +93,12 @@ class FileHandler:
         return parsed_docs
     
     def get_supported_extensions(self) -> List[str]:
-        """Get list of all supported file extensions"""
         extensions = set()
         for parser in self.parsers:
             extensions.update(parser.supported_extensions)
         return sorted(list(extensions))
     
     def get_parser_info(self) -> Dict[str, Any]:
-        """Get information about available parsers"""
         info = {
             "total_parsers": len(self.parsers),
             "parsers": []
