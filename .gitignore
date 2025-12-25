@@ -29,18 +29,14 @@ ENV/
 *.swp
 *.swo
 *~
+docs/
 .DS_Store
-data/uploads/*
 !data/uploads/.gitkeep
-data/processed/*
 !data/processed/.gitkeep
-data/vector_store/*
 !data/vector_store/.gitkeep
-data/cache/*
 !data/cache/.gitkeep
 
 # Logs
-logs/
 *.log
 
 # Testing

@@ -1,0 +1,29 @@
+{
+  "file_path": "C:\\Users\\isatyamks\\Repositories\\devasssure\\data\\uploads\\Booking.comFlightSearch.docx",
+  "filename": "Booking.comFlightSearch.docx",
+  "content": "Feature: Flight Search\n\n1. Overview\n\nThe Flight Search feature allows users to discover available flights between an origin and destination for given travel dates. The feature supports one-way, round-trip, and multi-city journeys and integrates with multiple airline and GDS providers to return real-time availability and pricing.\n\n2. Goals & Objectives\n\nEnable fast and accurate flight discovery\n\n\nSupport global routes and major airlines\n\n\nProvide reliable pricing and availability\n\n\nMinimize search latency (<3 seconds for first results)\n\n\n3. In Scope\n\nOne-way and round-trip searches\n\n\nEconomy, Premium Economy, Business, First class\n\n\nAdult, child, and infant passengers\n\n\nBasic fare comparison across airlines\n\n\nCurrency localization\n\n\n4. Out of Scope\n\nSeat selection\n\n\nAncillary services (meals, baggage add-ons)\n\n\nLoyalty point redemption\n\n\n5. User Flow\n\nUser selects Flights tab\n\n\nEnters:\n\n\nOrigin (city/airport)\n\n\nDestination (city/airport)\n\n\nDeparture date\n\n\nReturn date (optional)\n\n\nPassengers & class\n\n\nUser clicks Search\n\n\nSystem fetches flight options\n\n\nResults page displays available flights\n\n\n6. Functional Requirements\n\n7. Non-Functional Requirements\n\nPerformance: Initial results ≤ 3s\n\n\nAvailability: 99.9% uptime\n\n\nScalability: Support peak holiday traffic\n\n\nLocalization: Language & currency support\n\n\n8. Edge Cases\n\nNo flights available\n\n\nAirline API timeout\n\n\nPrice change between search and booking\n\n\nInvalid airport codes\n\n\n9. Success Metrics\n\nSearch → results success rate\n\n\nAverage response time\n\n\nSearch abandonment rate\n\n[TABLES]\n\n[Table 1]\nID | Requirement\nFR-FS-01 | System must validate origin ≠ destination\nFR-FS-02 | System must support flexible dates (±3 days)\nFR-FS-03 | Results must show total price incl. taxes\nFR-FS-04 | Results must display airline, duration, stops\nFR-FS-05 | Sort by price, duration, departure time",
+  "content_length": 1857,
+  "file_type": "docx",
+  "metadata": {
+    "file_name": "Booking.comFlightSearch.docx",
+    "file_extension": ".docx",
+    "file_size_bytes": 9522,
+    "created_at": "2025-12-24T15:30:06.572711",
+    "modified_at": "2025-12-24T15:30:06.575227",
+    "parser": "DOCXParser",
+    "paragraph_count": 45,
+    "section_count": 1,
+    "table_count": 1,
+    "word_count": 202,
+    "char_count": 1549,
+    "docx_properties": {
+      "title": "Word Document",
+      "author": "",
+      "subject": "",
+      "created": null,
+      "modified": "2025-12-24 10:00:06+00:00"
+    }
+  },
+  "parse_timestamp": "2025-12-24T15:30:06.697515",
+  "file_size_bytes": 1864
+}

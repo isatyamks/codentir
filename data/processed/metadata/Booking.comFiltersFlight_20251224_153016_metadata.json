@@ -1,0 +1,29 @@
+{
+  "file_path": "C:\\Users\\isatyamks\\Repositories\\devasssure\\data\\uploads\\Booking.comFiltersFlight.docx",
+  "filename": "Booking.comFiltersFlight.docx",
+  "content": "Feature: Flight Filters\n\n1. Overview\n\nThe Flight Filters feature enables users to refine flight search results based on price, stops, airlines, times, duration, and policies to quickly find relevant options.\n\n2. Goals & Objectives\n\nImprove discoverability of suitable flights\n\n\nReduce search friction\n\n\nIncrease booking conversion\n\n\n3. In Scope\n\nPrice range filter\n\n\nNumber of stops\n\n\nAirlines\n\n\nDeparture & arrival time\n\n\nFlight duration\n\n\nRefundable fares\n\n\n4. Out of Scope\n\nPersonalized AI recommendations\n\n\nLoyalty-based prioritization\n\n\n5. User Flow\n\nUser performs a flight search\n\n\nResults page loads with default filters\n\n\nUser applies one or more filters\n\n\nResults update dynamically\n\n\n6. Functional Requirements\n\n7. Non-Functional Requirements\n\nPerformance: Filter update ≤ 500ms\n\n\nUsability: Mobile-friendly UI\n\n\nConsistency: Same logic across web & app\n\n\n8. Edge Cases\n\nFilters resulting in zero results\n\n\nAirline data missing for some fares\n\n\nConflicting filter combinations\n\n\n9. Success Metrics\n\nFilter usage rate\n\n\nTime to first booking\n\n\nReduced bounce rate\n\n[TABLES]\n\n[Table 1]\nID | Requirement\nFR-FF-01 | Filters must update results without full reload\nFR-FF-02 | Multiple filters must be combinable\nFR-FF-03 | Clear-all option must reset filters\nFR-FF-04 | Applied filters must persist on back navigation\nFR-FF-05 | Filters must show available value ranges",
+  "content_length": 1374,
+  "file_type": "docx",
+  "metadata": {
+    "file_name": "Booking.comFiltersFlight.docx",
+    "file_extension": ".docx",
+    "file_size_bytes": 9140,
+    "created_at": "2025-12-24T15:30:06.623005",
+    "modified_at": "2025-12-24T15:30:06.624009",
+    "parser": "DOCXParser",
+    "paragraph_count": 36,
+    "section_count": 1,
+    "table_count": 1,
+    "word_count": 146,
+    "char_count": 1072,
+    "docx_properties": {
+      "title": "Word Document",
+      "author": "",
+      "subject": "",
+      "created": null,
+      "modified": "2025-12-24 10:00:16+00:00"
+    }
+  },
+  "parse_timestamp": "2025-12-24T15:30:16.414653",
+  "file_size_bytes": 1376
+}

@@ -1,0 +1,30 @@
+[
+  {
+    "chunk_id": "C:\\Users\\isatyamks\\Repositories\\devasssure\\data\\uploads\\Screenshot2025-12-2210.52.24AM.png::chunk_0",
+    "content": "Filters\nShowing 682 results\n\nStops\n\n@ any 682\nFrom INR49,925.05\n\n© Direct only 1\nFrom INR120,147.17\n\n© 1stop max 328\n\nFrom INR53,923.13\n\nAirlines\n@ Etinad Airways 188\n@ Air india 10\n@ Emirates Airlines 109\n@ sult air 26\n@ British airways 16\nShow all v\nFlight times\n\nDeparting flight Return flight\n\nDeparts Chennai International Airport\n\n(DF 12:00 AM-5:59 AM 250\n(FD 6:00 AM-11:59 AM 195\n(DF 12:00 pm-5:59 PM 36\n(FD 6:00 PM-11:59 PM 201\nArrives to London\n\n(DF 12:00 AM-5:59 AM 9\n(FD 6:00 AM-11:59 AM 27\n(DF 12:00 pm-5:59 PM 237\n(FD 6:00 PM-11:59 PM 219\n\nDuration\n\nMaximum travel time\n40 hours\n\n—_____l|m_.",
+    "source_file": "C:\\Users\\isatyamks\\Repositories\\devasssure\\data\\uploads\\Screenshot2025-12-2210.52.24AM.png",
+    "chunk_index": 0,
+    "word_count": 106,
+    "char_count": 604,
+    "metadata": {
+      "file_name": "Screenshot2025-12-2210.52.24AM.png",
+      "file_extension": ".png",
+      "file_size_bytes": 75187,
+      "created_at": "2025-12-24T15:30:06.603433",
+      "modified_at": "2025-12-24T15:30:06.604422",
+      "image_width": 395,
+      "image_height": 1072,
+      "image_format": "PNG",
+      "image_mode": "RGBA",
+      "parser": "ImageParser",
+      "ocr_engine": "tesseract",
+      "extracted_text_length": 604,
+      "word_count": 106,
+      "chunk_strategy": "sliding_window",
+      "chunk_size": 512,
+      "chunk_overlap": 50,
+      "total_chunks": 1
+    },
+    "created_at": "2025-12-24T15:30:12.836830"
+  }
+]
