@@ -15,10 +15,7 @@ class EmbeddingModel:
         self._initialize_model()
     
     def _initialize_model(self):
-        if settings.USE_OPENAI_EMBEDDINGS and settings.OPENAI_API_KEY:
-            self._initialize_openai_embeddings()
-        else:
-            self._initialize_sentence_transformers()
+        self._initialize_sentence_transformers()
     
     def _initialize_sentence_transformers(self):
         try:
@@ -38,38 +35,15 @@ class EmbeddingModel:
             logger.error(f"Failed to load embedding model: {e}")
             raise
     
-    def _initialize_openai_embeddings(self):
-        try:
-            from langchain_openai import OpenAIEmbeddings
-            
-            logger.info(f"Using OpenAI embeddings: {settings.OPENAI_EMBEDDING_MODEL}")
-            self.model = OpenAIEmbeddings(
-                model=settings.OPENAI_EMBEDDING_MODEL,
-                openai_api_key=settings.OPENAI_API_KEY
-            )
-            self.embedding_type = "openai"
-            logger.info("OpenAI embeddings initialized")
-        
-        except ImportError:
-            raise ImportError(
-                "langchain-openai not installed. "
-                "Install with: pip install langchain-openai"
-            )
-        except Exception as e:
-            logger.error(f"Failed to initialize OpenAI embeddings: {e}")
-            raise
-    
+
     def embed_text(self, text: str) -> List[float]:
         if not text or not text.strip():
             logger.warning("Empty text provided for embedding")
             return []
         
         try:
-            if self.embedding_type == "openai":
-                embedding = self.model.embed_query(text)
-            else:
-                embedding = self.model.encode(text, convert_to_tensor=False)
-                embedding = embedding.tolist()
+            embedding = self.model.encode(text, convert_to_tensor=False)
+            embedding = embedding.tolist()
             
             return embedding
         
@@ -88,16 +62,13 @@ class EmbeddingModel:
             return []
         
         try:
-            if self.embedding_type == "openai":
-                embeddings = self.model.embed_documents(texts)
-            else:
-                embeddings = self.model.encode(
-                    texts,
-                    convert_to_tensor=False,
-                    batch_size=settings.BATCH_SIZE,
-                    show_progress_bar=len(texts) > 10
-                )
-                embeddings = embeddings.tolist()
+            embeddings = self.model.encode(
+                texts,
+                convert_to_tensor=False,
+                batch_size=settings.BATCH_SIZE,
+                show_progress_bar=len(texts) > 10
+            )
+            embeddings = embeddings.tolist()
             
             logger.info(f"Generated {len(embeddings)} embeddings")
             return embeddings
@@ -108,11 +79,7 @@ class EmbeddingModel:
     
     def get_embedding_dimension(self) -> int:
         try:
-            if self.embedding_type == "openai":
-                test_embedding = self.embed_text("test")
-                return len(test_embedding)
-            else:
-                return self.model.get_sentence_embedding_dimension()
+            return self.model.get_sentence_embedding_dimension()
         except Exception as e:
             logger.error(f"Error getting embedding dimension: {e}")
             return 384
@@ -122,5 +89,5 @@ class EmbeddingModel:
             "model_name": self.model_name,
             "embedding_type": self.embedding_type,
             "dimension": self.get_embedding_dimension(),
-            "max_seq_length": getattr(self.model, 'max_seq_length', None) if self.embedding_type != "openai" else None
+            "max_seq_length": getattr(self.model, 'max_seq_length', None)
         }
