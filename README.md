@@ -1,293 +1,314 @@
-# DevAssure - Multimodal RAG System for Test Case Generation
+# Multimodal RAG System for Test Case Generation
 
-**AI-Powered Test Case & Use Case Generation using Retrieval-Augmented Generation**
-
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.109.0-009688.svg)](https://fastapi.tiangolo.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+AI-powered test case and use case generation using Retrieval-Augmented Generation with safety guardrails.
 
 ---
 
-## 📋 Table of Contents
+## Overview
 
-- [Overview](#overview)
-- [Features](#features)
-- [Architecture](#architecture)
-- [Quick Start](#quick-start)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Usage](#usage)
-- [API Documentation](#api-documentation)
-- [Examples](#examples)
-- [Project Structure](#project-structure)
-- [Technologies](#technologies)
-- [Development Tools](#development-tools)
-- [Testing](#testing)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
+This is a production-ready RAG system that generates test cases and use cases from documentation. It processes multimodal documents (text, PDF, DOCX, images), retrieves relevant context using hybrid search, and generates structured outputs with three-layer validation guards.
+
+### Key Features
+
+- **Context-Grounded Generation**: All outputs verified against source documents
+- **Three-Layer Guards**: Prompt injection detection, evidence threshold checking, hallucination prevention
+- **Multimodal Support**: Text, Markdown, PDF, DOCX, and images via OCR
+- **Hybrid Search**: Combines vector similarity (semantic) and BM25 (keyword matching)
+- **RESTful API**: Auto-generated documentation with OpenAPI/Swagger
 
 ---
 
-## 📖 Overview
-
-DevAssure is a **production-ready Retrieval-Augmented Generation (RAG) system** designed to automatically generate **high-quality test cases and use cases** from multimodal documents. The system ingests various document types, retrieves relevant context using hybrid search, and generates structured outputs with comprehensive safety guardrails.
-
-### Why DevAssure?
-
-- **🎯 Context-Grounded**: Never invents features - all outputs based on actual documents
-- **🛡️ Safety-First**: 3-layer guard system prevents hallucinations and prompt injections
-- **📄 Multimodal**: Handles Text, Markdown, PDF, DOCX, and Images (OCR)
-- **⚡ Fast**: Hybrid search (vector + keyword) with configurable thresholds
-- **🔌 API-First**: RESTful API with auto-generated documentation
-- **🎨 Flexible**: Supports multiple LLM providers (Groq, OpenAI, Anthropic, Ollama)
-
----
-
-## ✨ Features
-
-### Document Processing
-- ✅ **4 File Types**: Text/Markdown, PDF, DOCX, Images (PNG/JPG)
-- ✅ **Smart Chunking**: 3 strategies (sliding window, sentence-based, paragraph-based)
-- ✅ **OCR Support**: Tesseract and EasyOCR for image text extraction
-- ✅ **Metadata Preservation**: Source tracking and attribution
-
-### Retrieval System
-- ✅ **Hybrid Search**: Vector similarity (sentence-transformers) + BM25 keyword search
-- ✅ **384-dim Embeddings**: Local model (all-MiniLM-L6-v2) or OpenAI
-- ✅ **Persistent Storage**: ChromaDB for efficient vector operations
-- ✅ **Reranking**: Optional cross-encoder for improved relevance
-
-### Generation Engine
-- ✅ **Use Case Generation**: Structured use cases with preconditions, steps, expected results
-- ✅ **Test Case Generation**: Positive, negative, and boundary test cases
-- ✅ **Multi-Provider LLM**: Groq (free!), OpenAI, Anthropic, Ollama
-- ✅ **JSON Output**: Validated, structured responses
-
-### Safety Guards (High Priority!)
-- ✅ **Hallucination Prevention**: Context grounding verification (70% threshold)
-- ✅ **Evidence Threshold**: Minimum confidence checks before generation
-- ✅ **Prompt Injection Protection**: 20+ malicious pattern detection
-- ✅ **Orchestrated Pipeline**: Multi-layer validation
-
-### API & Observability
-- ✅ **8 REST Endpoints**: Upload, query, generate, stats, health
-- ✅ **Auto Documentation**: Swagger UI + ReDoc
-- ✅ **Comprehensive Logging**: Colored console + rotating file logs
-- ✅ **Performance Metrics**: Latency, token usage, counters
-
----
-
-## 🏗️ Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         CLIENT REQUEST                           │
-│                    (Upload / Query / Generate)                   │
-└────────────────────────────┬────────────────────────────────────┘
-                             │
-                             ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                      FASTAPI LAYER (main.py)                     │
-│  Routes: /upload, /query, /generate/*, /health, /stats          │
-└────────────────────────────┬────────────────────────────────────┘
-                             │
-        ┌────────────────────┼────────────────────┐
-        │                    │                    │
-        ▼                    ▼                    ▼
-┌──────────────┐   ┌──────────────────┐   ┌──────────────┐
-│  INGESTION   │   │    RETRIEVAL     │   │  GENERATION  │
-│   PIPELINE   │   │     SYSTEM       │   │    ENGINE    │
-├──────────────┤   ├──────────────────┤   ├──────────────┤
-│ • Parsers    │   │ • Embeddings     │   │ • LLM Client │
-│   - Text     │   │ • Vector Store   │   │ • Use Cases  │
-│   - PDF      │──▶│ • Hybrid Search  │──▶│ • Test Cases │
-│   - DOCX     │   │ • Reranking      │   │ • Formatter  │
-│   - Images   │   │                  │   │              │
-│ • Chunker    │   │                  │   │              │
-└──────────────┘   └──────────────────┘   └──────────────┘
-                             │
-                             ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                      GUARD ORCHESTRATOR                          │
-│  ┌───────────────┬────────────────────┬─────────────────────┐  │
-│  │ Prompt        │ Evidence           │ Hallucination       │  │
-│  │ Injection     │ Threshold          │ Guard               │  │
-│  │ Guard         │ Guard              │                     │  │
-│  └───────────────┴────────────────────┴─────────────────────┘  │
-└─────────────────────────────────────────────────────────────────┘
-                             │
-                             ▼
-                    ┌─────────────────┐
-                    │  JSON RESPONSE  │
-                    │  (Validated)    │
-                    └─────────────────┘
-```
-
-### Data Flow
-
-1. **Document Upload** → Parse → Chunk → Embed → Store in ChromaDB
-2. **User Query** → Guard Check → Retrieve Top-K → Evidence Check
-3. **LLM Generation** → Parse JSON → Hallucination Check → Return
-
----
-
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
 - Python 3.10+
-- Git
 - Groq API Key (free at [console.groq.com](https://console.groq.com))
 
-### 1-Minute Setup
+### Installation
 
 ```bash
-# Clone repository
 git clone <your-repo-url>
-cd devasssure
+cd multimodal-rag
 
-# Create virtual environment
 python -m venv venv
-venv\Scripts\activate  # Windows
-# source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate  # Windows: venv\Scripts\activate
 
-# Install dependencies
 pip install -r requirements.txt
 
-# Configure environment
-copy .env.example .env
+copy sample.env .env
 # Edit .env and add your GROQ_API_KEY
 
-# Start the API server
 python main.py
 ```
 
-Server starts at: **http://localhost:8000**
-
-Interactive docs: **http://localhost:8000/docs**
+Server starts at `http://localhost:8000`. View API docs at `http://localhost:8000/docs`.
 
 ---
 
-## 📦 Installation
+## Architecture
 
-### Detailed Setup
+### System Overview
 
-```bash
-# 1. Clone the repository
-git clone <your-repo-url>
-cd devasssure
-
-# 2. Create virtual environment
-python -m venv venv
-
-# 3. Activate virtual environment
-# Windows:
-venv\Scripts\activate
-# Linux/Mac:
-source venv/bin/activate
-
-# 4. Install dependencies
-pip install -r requirements.txt
-
-# 5. Set up environment variables
-copy .env.example .env
-
-# 6. Get Groq API Key
-# Visit: https://console.groq.com
-# Sign up (free, no credit card)
-# Create API key
-# Add to .env: GROQ_API_KEY=gsk_your_key_here
-
-# 7. (Optional) For OCR support
-# Install Tesseract: https://github.com/tesseract-ocr/tesseract
-# Or set USE_EASYOCR=true in .env
+```
+┌─────────────────────────────────────────────────────┐
+│                  CLIENT REQUEST                      │
+│            (HTTP POST with query/files)              │
+└────────────────────┬────────────────────────────────┘
+                     ▼
+┌─────────────────────────────────────────────────────┐
+│              FASTAPI APPLICATION LAYER               │
+│   Routes: /upload, /generate/*, /query, /stats      │
+└────────────────────┬────────────────────────────────┘
+                     │
+        ┌────────────┼────────────┬─────────────┐
+        ▼            ▼            ▼             ▼
+┌─────────────┐ ┌──────────┐ ┌──────────┐ ┌─────────┐
+│ INGESTION   │ │RETRIEVAL │ │GENERATION│ │ GUARDS  │
+│  PIPELINE   │ │  SYSTEM  │ │  ENGINE  │ │ SYSTEM  │
+└─────────────┘ └──────────┘ └──────────┘ └─────────┘
 ```
 
+### Component Details
+
+#### 1. Ingestion Pipeline
+
+**Purpose**: Transform raw documents into searchable vector embeddings.
+
+**Process Flow**:
+```
+Document → Parser → Text Extraction → Chunker → Embeddings → Vector Store
+```
+
+**Components**:
+- **File Handler**: Routes files to appropriate parser based on extension
+- **Parsers**: 
+  - `TextParser`: .txt, .md files (native Python)
+  - `PDFParser`: .pdf files (PyPDF2)
+  - `DocxParser`: .docx files (python-docx)
+  - `ImageParser`: .png, .jpg files (Tesseract OCR)
+- **Chunker**: Splits text into 512-token chunks with 50-token overlap
+- **Embedding Model**: all-MiniLM-L6-v2 (384-dimensional vectors)
+- **Vector Store**: ChromaDB with HNSW index
+
+**Key Decisions**:
+- Chunk size 512: Balance between context and embedding model limits
+- Overlap 50: Prevents context loss at boundaries
+- Local embeddings: No API calls, faster processing
+
+#### 2. Retrieval System
+
+**Purpose**: Find most relevant document chunks for a given query.
+
+**Hybrid Search Algorithm**:
+```
+Query → [Vector Search] + [BM25 Search] → Score Fusion → Top-K Results
+```
+
+**Vector Search (Semantic)**:
+- Embeds query using same model as documents
+- Performs cosine similarity search in ChromaDB
+- Captures semantic meaning (e.g., "login" matches "authentication")
+
+**BM25 Search (Keyword)**:
+- Tokenizes query and documents
+- Uses Okapi BM25 ranking function
+- Captures exact keyword matches (e.g., "API_KEY_123")
+
+**Score Fusion**:
+```python
+# Normalize both scores to [0, 1] range
+vector_norm = vector_score / max_vector_score
+bm25_norm = bm25_score / max_bm25_score
+
+# Combine with alpha weight (default: 0.3)
+hybrid_score = (alpha * vector_norm) + ((1 - alpha) * bm25_norm)
+```
+
+**Why Hybrid**:
+- Pure vector misses exact keywords
+- Pure BM25 misses semantic similarity
+- Hybrid provides best of both approaches
+
+#### 3. Generation Engine
+
+**Purpose**: Generate structured test cases/use cases using LLM.
+
+**Components**:
+- **LLM Client**: Abstraction over Groq API (llama-3.3-70b-versatile)
+- **Prompt Templates**: Centralized in `src/config/prompts.py`
+- **Use Case Generator**: Generates preconditions, steps, expected results
+- **Test Case Generator**: Generates test ID, priority, type, steps
+- **Output Formatter**: Parses and validates JSON responses
+
+**Generation Flow**:
+```
+1. Retrieve top-k relevant chunks
+2. Construct prompt with context + query
+3. Call LLM with temperature=0.2 (deterministic)
+4. Parse JSON response
+5. Validate structure and fields
+```
+
+**LLM Configuration**:
+- Model: llama-3.3-70b-versatile (Groq)
+- Temperature: 0.2 (low for consistency)
+- Max tokens: 2000
+- Response format: JSON
+
+#### 4. Guards System
+
+**Purpose**: Multi-layer validation to ensure safety and quality.
+
+**Guard 1: Prompt Injection Guard**
+- **When**: Before retrieval
+- **Purpose**: Detect malicious queries attempting to manipulate system
+- **Method**: 20+ regex patterns matching known attack vectors
+- **Action**: Block high-risk queries, return 400 error
+
+**Guard 2: Evidence Threshold Guard**
+- **When**: After retrieval, before LLM call
+- **Purpose**: Ensure sufficient context quality
+- **Method**: Weighted confidence score from retrieval results
+- **Formula**:
+  ```python
+  confidence = sum(score * weight for score, weight in zip(scores, [1.0, 0.8, 0.6, 0.4, 0.2]))
+  sufficient = confidence >= MIN_EVIDENCE_CONFIDENCE
+  ```
+- **Action**: Block generation if confidence too low, provide recommendation
+
+**Guard 3: Hallucination Guard**
+- **When**: After generation
+- **Purpose**: Verify output is grounded in source documents
+- **Method**: 
+  - Extract statements from generated output
+  - Calculate semantic similarity with context chunks
+  - Compute grounding ratio
+- **Action**: Flag warning if <70% of statements are grounded
+
+**Guard Orchestration**:
+```
+Query → Guard 1 ✓ → Retrieval → Guard 2 ✓ → LLM → Guard 3 ✓ → Response
+        (block)              (block)              (warn)
+```
+
+### Data Flow: Complete Request Lifecycle
+
+#### Document Upload Flow
+
+```
+1. POST /upload with multipart file
+2. Validate file type and size
+3. Save to data/uploads/
+4. Detect file type, route to parser
+5. Parse: Extract text + metadata
+6. Chunk: Split into 512-token pieces
+7. Embed: Generate 384-dim vectors (batched)
+8. Store: Add to ChromaDB collection
+9. Index: Build BM25 inverted index
+10. Return: chunks_indexed, embedding_dim
+```
+
+#### Generation Request Flow
+
+```
+1. POST /generate/test-cases with query
+2. Guard 1: Check for prompt injection
+   → If unsafe: Return 400 error
+3. Embed query using same model
+4. Hybrid Search:
+   a. Vector search: ChromaDB similarity query
+   b. BM25 search: Okapi BM25 ranking
+   c. Normalize scores to [0, 1]
+   d. Fuse: hybrid = 0.3*vector + 0.7*bm25
+   e. Sort by hybrid score, select top-k
+5. Guard 2: Calculate confidence
+   → If insufficient: Return error with recommendation
+6. Construct LLM prompt:
+   - System: "You are a QA engineer..."
+   - User: "Context: [chunks]\nQuery: {query}\nOutput: JSON"
+7. Call Groq API with llama-3.3-70b
+8. Parse JSON response
+9. Guard 3: Verify grounding
+   → If not grounded: Log warning (still return)
+10. Format response with validation metadata
+11. Return JSON to client
+```
+
+### Technical Specifications
+
+**Embedding Model**:
+- Name: sentence-transformers/all-MiniLM-L6-v2
+- Dimensions: 384
+- Max sequence length: 256 tokens
+- Performance: ~200ms for 32 queries (batch)
+
+**Vector Database**:
+- Type: ChromaDB (embedded)
+- Index: HNSW (Hierarchical Navigable Small World)
+- Distance metric: Cosine similarity
+- Persistence: SQLite backend
+
+**Search Parameters**:
+- `TOP_K`: Number of chunks to retrieve (default: 10)
+- `SIMILARITY_THRESHOLD`: Minimum cosine similarity (default: 0.5)
+- `HYBRID_ALPHA`: Vector vs BM25 weight (default: 0.3)
+- `MIN_EVIDENCE_CONFIDENCE`: Guard threshold (default: 0.5)
+
+**LLM Settings**:
+- Provider: Groq
+- Model: llama-3.3-70b-versatile
+- Speed: ~300 tokens/second
+- Temperature: 0.2 (deterministic outputs)
+- Max tokens: 2000
+- Response format: JSON mode
+
+**Performance Characteristics**:
+- Document parsing: 200-500ms (depends on file size)
+- Embedding generation: 100-200ms per batch of 32
+- Vector search: 20-50ms
+- BM25 search: 10-30ms
+- LLM generation: 1-3s (network + processing)
+- Total end-to-end: 2-4s per request
+
 ---
 
-## ⚙️ Configuration
+## Configuration
 
-Edit `.env` file to customize:
+Edit `.env` file:
 
 ```bash
-# LLM Provider (choose one)
-GROQ_API_KEY=your_groq_api_key_here
+# LLM Configuration
+GROQ_API_KEY=your_api_key_here
 GROQ_MODEL=llama-3.3-70b-versatile
+LLM_TEMPERATURE=0.2
+MAX_TOKENS=2000
 
-# Retrieval Settings
-TOP_K=5                         # Number of chunks to retrieve
-SIMILARITY_THRESHOLD=0.7        # Min similarity score (0-1)
-HYBRID_ALPHA=0.5               # Vector vs keyword weight
+# Retrieval
+TOP_K=10
+SIMILARITY_THRESHOLD=0.5
+HYBRID_ALPHA=0.3
 
-# Guard Settings
-MIN_EVIDENCE_CONFIDENCE=0.65    # Min score to generate (0-1)
+# Guards
+MIN_EVIDENCE_CONFIDENCE=0.5
 ENABLE_HALLUCINATION_GUARD=true
 ENABLE_PROMPT_INJECTION_GUARD=true
 ENABLE_EVIDENCE_THRESHOLD=true
 
-# API Settings
-API_HOST=0.0.0.0
-API_PORT=8000
-MAX_FILE_SIZE=10485760         # 10MB
-
 # Chunking
 CHUNK_SIZE=512
 CHUNK_OVERLAP=50
-MIN_CHUNK_SIZE=100
+
+# API
+API_HOST=0.0.0.0
+API_PORT=8000
 ```
 
-See `.env.example` for all available options.
+See `sample.env` for all options.
 
 ---
 
-## 💻 Usage
-
-### Option 1: Run API Server
-
-```bash
-# Start server
-python main.py
-
-# Or use the batch script
-run_api.bat
-```
-
-### Option 2: Python API
-
-```python
-from src.generation import Generator
-
-# Initialize
-generator = Generator()
-
-# Generate use case
-result = generator.generate_use_case(
-    query="Create use cases for user login",
-    top_k=5,
-    search_mode="hybrid"
-)
-
-if result['success']:
-    print(result['use_case']['title'])
-    print(result['use_case']['steps'])
-```
-
-### Option 3: CLI Scripts
-
-```bash
-# Test Phase 5 (Generation)
-python scripts\test_phase5_quick.py
-
-# Interactive testing
-python scripts\interactive_test_phase5.py
-
-# API testing
-python scripts\test_api.py
-```
-
----
-
-## 📡 API Documentation
+## API Reference
 
 ### Base URL
 ```
@@ -296,63 +317,49 @@ http://localhost:8000
 
 ### Endpoints
 
-#### 1. Health Check
+#### Health Check
 ```http
 GET /health
 ```
 
-**Response:**
-```json
-{
-  "status": "healthy",
-  "components": {
-    "generator": true,
-    "retriever": true
-  },
-  "statistics": {
-    "total_documents": 8,
-    "queries_processed": 5
-  }
-}
-```
+Returns system health and statistics.
 
-#### 2. Upload Documents
+#### Upload Documents
 ```http
 POST /upload
 Content-Type: multipart/form-data
 ```
 
-**Body:**
-- `files`: File(s) to upload (.txt, .md, .pdf, .docx, .png, .jpg)
+Upload files (.txt, .md, .pdf, .docx, .png, .jpg).
 
-**Response:**
-```json
-{
-  "success": true,
-  "files_uploaded": 1,
-  "chunks_indexed": 8,
-  "embedding_dim": 384,
-  "files": ["document.pdf"]
-}
+**Example**:
+```bash
+curl -X POST http://localhost:8000/upload -F "files=@document.pdf"
 ```
 
-#### 3. Generate Use Case
+#### Generate Use Case
 ```http
 POST /generate/use-case
-Content-Type: application/x-www-form-urlencoded
 ```
 
-**Body:**
-- `query`: User query (required)
-- `top_k`: Number of chunks (default: 5)
-- `search_mode`: "hybrid" | "vector" | "keyword" (default: "hybrid")
+**Parameters**:
+- `query` (required): Description of desired use case
+- `top_k` (optional): Number of context chunks (default: 5)
+- `search_mode` (optional): "hybrid" | "vector" | "keyword"
 
-**Response:**
+**Example**:
+```bash
+curl -X POST http://localhost:8000/generate/use-case \
+  -F "query=Create use cases for user login" \
+  -F "top_k=5"
+```
+
+**Response**:
 ```json
 {
   "success": true,
   "use_case": {
-    "title": "User Login with Email Verification",
+    "title": "User Login with Email and Password",
     "description": "...",
     "preconditions": [...],
     "steps": [...],
@@ -360,7 +367,6 @@ Content-Type: application/x-www-form-urlencoded
     "negative_cases": [...],
     "boundary_cases": [...]
   },
-  "tokens": {"total": 450},
   "validation": {
     "query_safe": true,
     "evidence_sufficient": true,
@@ -369,180 +375,251 @@ Content-Type: application/x-www-form-urlencoded
 }
 ```
 
-#### 4. Generate Test Cases
+#### Generate Test Cases
 ```http
 POST /generate/test-cases
 ```
 
-Same format as use case endpoint.
+Same parameters as use case endpoint.
 
-#### 5. General Query
-```http
-POST /query
+**Response**:
+```json
+{
+  "success": true,
+  "test_cases": [
+    {
+      "test_id": "TC001",
+      "title": "...",
+      "priority": "P0",
+      "type": "functional",
+      "steps": [...],
+      "expected_result": "..."
+    }
+  ]
+}
 ```
 
-**Body:**
-- `query`: User query
-- `mode`: "use_case" | "test_cases" | "both"
-- `top_k`: Number of chunks
-- `search_mode`: Search mode
-
-#### 6. System Statistics
+#### System Statistics
 ```http
 GET /stats
 ```
 
-#### 7. Reset Index
+#### Reset Index
 ```http
 DELETE /index
 ```
 
-### Interactive Documentation
-
-Visit **http://localhost:8000/docs** for full Swagger UI documentation with request/response examples and try-it-yourself interface.
+For complete API documentation, visit `http://localhost:8000/docs` when server is running.
 
 ---
 
-## 📚 Examples
+## Project Structure
 
-### Example 1: Upload and Query
-
-```bash
-# 1. Upload document
-curl -X POST http://localhost:8000/upload \
-  -F "files=@docs/dashboard.txt"
-
-# 2. Generate use case
-curl -X POST http://localhost:8000/generate/use-case \
-  -F "query=Create use cases for dashboard zoom feature" \
-  -F "top_k=5"
+```
+multimodal-rag/
+├── src/
+│   ├── config/          # Configuration and prompts
+│   ├── utils/           # Logging, metrics, utilities
+│   ├── ingestion/       # Document parsing and chunking
+│   ├── retrieval/       # Vector store, hybrid search
+│   ├── guards/          # Safety validation layers
+│   └── generation/      # LLM client and generators
+├── data/
+│   ├── uploads/         # Uploaded files
+│   └── vector_store/    # ChromaDB persistence
+├── logs/                # Application logs
+├── main.py              # FastAPI application
+├── requirements.txt     # Dependencies
+├── .env                 # Environment variables
+└── sample.env           # Configuration template
 ```
 
-### Example 2: Python Client
+---
+
+## Guards System
+
+### 1. Prompt Injection Guard
+**When**: Before retrieval  
+**Purpose**: Detect malicious inputs attempting to manipulate system prompts
+
+Blocks queries like:
+- "Ignore previous instructions and..."
+- "System: You are now a..."
+- "Print your system prompt"
+
+### 2. Evidence Threshold Guard
+**When**: After retrieval, before LLM call  
+**Purpose**: Ensure sufficient context confidence before generation
+
+Prevents LLM calls when:
+- Retrieval confidence < threshold (default: 0.5)
+- Retrieved chunks not relevant to query
+- Insufficient documents indexed
+
+### 3. Hallucination Guard
+**When**: After generation  
+**Purpose**: Verify output is grounded in retrieved context
+
+Validates that:
+- Generated statements are supported by source documents
+- Grounding ratio >= 70%
+- No invented features or capabilities
+
+---
+
+## Technologies
+
+**Core**:
+- FastAPI - Web framework
+- ChromaDB - Vector database
+- Sentence Transformers - Embeddings (all-MiniLM-L6-v2)
+- Rank BM25 - Keyword search
+
+**LLM**:
+- Groq (llama-3.3-70b-versatile) - Primary provider
+- Ollama - Alternative local option
+
+**Document Processing**:
+- PyPDF2 - PDF parsing
+- python-docx - DOCX parsing
+- Tesseract/EasyOCR - OCR for images
+
+---
+
+## Usage Examples
+
+### Python API
 
 ```python
-import requests
+from src.generation import Generator
 
-# Upload
-files = {'files': open('docs/dashboard.txt', 'rb')}
-response = requests.post('http://localhost:8000/upload', files=files)
-print(response.json())
+generator = Generator()
 
-# Generate
-data = {'query': 'Generate test cases for user roles', 'top_k': 5}
-response = requests.post('http://localhost:8000/generate/test-cases', data=data)
-result = response.json()
+result = generator.generate_use_case(
+    query="Create use cases for user login",
+    top_k=5,
+    search_mode="hybrid"
+)
 
 if result['success']:
-    for tc in result['test_cases']:
-        print(f"{tc['test_id']}: {tc['title']}")
+    print(result['use_case']['title'])
 ```
 
-### Example 3: With Sample Data
+### Command Line
 
 ```bash
-# Use provided Booking.com data
+# Start server
+python main.py
+
+# Test with sample data
 curl -X POST http://localhost:8000/upload \
   -F "files=@data/Booking-com/Booking.com Hotel Search.docx"
 
-curl -X POST http://localhost:8000/generate/use-case \
-  -F "query=Create use cases for hotel search filters"
+curl -X POST http://localhost:8000/generate/test-cases \
+  -F "query=Generate test cases for hotel search filters"
 ```
 
 ---
 
-## 📁 Project Structure
+## Development
 
-```
-devasssure/
-├── src/                          # Source code
-│   ├── config/                   # Configuration & settings
-│   ├── utils/                    # Utilities
-│   ├── ingestion/               # Document ingestion
-│   ├── retrieval/               # Retrieval system
-│   ├── guards/                   # Safety guards
-│   └── generation/              # Generation engine
-├── tests/                        # Unit tests
-├── scripts/                      # Utility scripts
-├── docs/                         # Documentation & sample data
-├── data/                         # Data storage
-│   ├── Booking-com/             # Sample Booking.com data
-│   ├── uploads/                 # Uploaded files
-│   └── vector_store/            # ChromaDB storage
-├── logs/                         # Application logs
-├── main.py                       # FastAPI application
-├── run_api.bat                   # Server start script
-├── requirements.txt              # Python dependencies
-├── .env.example                  # Environment template
-└── README.md                     # This file
-```
-
----
-
-## 🔧 Technologies
-
-### Core
-- **FastAPI** - Modern web framework
-- **LangChain** - RAG framework
-- **ChromaDB** - Vector database
-- **Sentence Transformers** - Embeddings
-
-### LLM Providers
-- **Groq** - Fast, free (primary)
-- **OpenAI, Anthropic, Ollama** - Supported
-
-### Testing
-- **pytest, black, flake8, mypy**
-
----
-
-## 🛠️ Development Tools
-
-### IDEs Used
-- **Visual Studio Code** - Primary
-- **Cursor AI** - AI assistance
-- **PyCharm** - Alternative
-
----
-
-## 🧪 Testing
+### Running Tests
 
 ```bash
-# All phases
 pytest tests/ -v
+```
 
-# Individual phases
-python scripts\validate_phase*.py
+### Code Quality
 
-# API tests
-python scripts\test_api.py
+```bash
+black src/
+flake8 src/
+mypy src/
 ```
 
 ---
 
-## 🔧 Troubleshooting
+## Deployment
 
-### Common Issues
+### Systemd Service
 
-1. **Import Errors**: `pip install -r requirements.txt`
-2. **API Key Not Found**: Check `.env` file
-3. **ChromaDB Issues**: Delete `data/vector_store/*`
-4. **Port in Use**: Change `API_PORT` in `.env`
+```bash
+sudo nano /etc/systemd/system/devasssure.service
+```
+
+```ini
+[Unit]
+Description=DevAssure RAG API
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/opt/multimodal-rag
+Environment="PATH=/opt/multimodal-rag/venv/bin"
+ExecStart=/opt/multimodal-rag/venv/bin/python /opt/multimodal-rag/main.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```bash
+sudo systemctl enable devasssure
+sudo systemctl start devasssure
+```
+
+### Docker
+
+```dockerfile
+FROM python:3.10-slim
+WORKDIR /app
+RUN apt-get update && apt-get install -y tesseract-ocr
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+EXPOSE 8000
+CMD ["python", "main.py"]
+```
 
 ---
 
-## 📄 License
+## Troubleshooting
 
-MIT License
+### Import Errors
+```bash
+pip install -r requirements.txt
+```
+
+### ChromaDB Lock
+```bash
+pkill -f "python main.py"
+rm data/vector_store/chroma.sqlite3-wal
+python main.py
+```
+
+### Tesseract Not Found
+```bash
+# Windows: Download from https://github.com/UB-Mannheim/tesseract/wiki
+# Linux:
+sudo apt install tesseract-ocr
+
+# Update .env:
+TESSERACT_PATH=/usr/bin/tesseract
+```
 
 ---
 
-## 👥 Author
+## Performance
 
-DevAssure AI Engineer Intern Assignment
+Typical metrics (16GB RAM, 8-core CPU):
+
+| Operation | Time |
+|-----------|------|
+| Upload PDF (10 pages) | 2.5s |
+| Chunk + Embed (100 chunks) | 3.8s |
+| Hybrid Search | 45ms |
+| LLM Generation | 2.1s |
+| End-to-End Query | 2.2s |
 
 ---
-
-**Built with ❤️ using Python, FastAPI, and modern RAG techniques**
-
-🚀 **Ready for Production** | 🛡️ **Safety-First** | 📊 **Data-Driven** | ⚡ **High Performance**
