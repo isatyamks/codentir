@@ -121,52 +121,6 @@ async def upload_files(files: List[UploadFile] = File(...)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/generate/use-case")
-async def generate_use_case(
-    query: str = Form(...),
-    top_k: Optional[int] = Form(5),
-    search_mode: Optional[str] = Form("hybrid")
-):
-
-    try:
-        logger.info(f"Generating use case for: {query}")
-        
-        result = generator.generate_use_case(
-            query=query,
-            top_k=top_k,
-            search_mode=search_mode
-        )
-        
-        return result
-    
-    except Exception as e:
-        logger.error(f"Use case generation failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/generate/test-cases")
-async def generate_test_cases(
-    query: str = Form(...),
-    top_k: Optional[int] = Form(5),
-    search_mode: Optional[str] = Form("hybrid")
-):
-
-    try:
-        logger.info(f"Generating test cases for: {query}")
-        
-        result = generator.generate_test_cases(
-            query=query,
-            top_k=top_k,
-            search_mode=search_mode
-        )
-        
-        return result
-    
-    except Exception as e:
-        logger.error(f"Test case generation failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
 @app.post("/query")
 async def query_system(
     query: str = Form(...),
