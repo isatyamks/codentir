@@ -77,3 +77,6 @@ secrets/
 credentials/
 *.key
 *.pem
+
+
+data
