@@ -143,10 +143,9 @@ class IngestionPipeline:
         chunks: List[TextChunk]
     ) -> None:
         try:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             filename_base = parsed_doc.file_path.stem
             
-            chunks_file = self.processed_dir / "chunks" / f"{filename_base}_{timestamp}_chunks.json"
+            chunks_file = self.processed_dir / "chunks" / f"{filename_base}_chunks.json"
             chunks_file.parent.mkdir(parents=True, exist_ok=True)
             
             chunks_data = [chunk.to_dict() for chunk in chunks]
@@ -154,7 +153,7 @@ class IngestionPipeline:
             with open(chunks_file, 'w', encoding='utf-8') as f:
                 json.dump(chunks_data, f, indent=2, ensure_ascii=False)
             
-            metadata_file = self.processed_dir / "metadata" / f"{filename_base}_{timestamp}_metadata.json"
+            metadata_file = self.processed_dir / "metadata" / f"{filename_base}_metadata.json"
             metadata_file.parent.mkdir(parents=True, exist_ok=True)
             
             with open(metadata_file, 'w', encoding='utf-8') as f:
