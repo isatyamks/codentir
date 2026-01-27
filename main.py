@@ -121,68 +121,23 @@ async def upload_files(files: List[UploadFile] = File(...)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/generate/use-case")
-async def generate_use_case(
-    query: str = Form(...),
-    top_k: Optional[int] = Form(5),
-    search_mode: Optional[str] = Form("hybrid")
-):
-
-    try:
-        logger.info(f"Generating use case for: {query}")
-        
-        result = generator.generate_use_case(
-            query=query,
-            top_k=top_k,
-            search_mode=search_mode
-        )
-        
-        return result
-    
-    except Exception as e:
-        logger.error(f"Use case generation failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/generate/test-cases")
-async def generate_test_cases(
-    query: str = Form(...),
-    top_k: Optional[int] = Form(5),
-    search_mode: Optional[str] = Form("hybrid")
-):
-
-    try:
-        logger.info(f"Generating test cases for: {query}")
-        
-        result = generator.generate_test_cases(
-            query=query,
-            top_k=top_k,
-            search_mode=search_mode
-        )
-        
-        return result
-    
-    except Exception as e:
-        logger.error(f"Test case generation failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
 @app.post("/query")
 async def query_system(
     query: str = Form(...),
     mode: Optional[str] = Form("both"),
     top_k: Optional[int] = Form(5),
-    search_mode: Optional[str] = Form("hybrid")
+    search_mode: Optional[str] = Form("hybrid"),
+    session_id: Optional[str] = Form(None)
 ):
     try:
-        logger.info(f"Processing query: {query} (mode: {mode})")
+        logger.info(f"Processing query: {query} (mode: {mode}, session: {session_id})")
         
         if mode == "use_case":
-            result = generator.generate_use_case(query, top_k, search_mode)
+            result = generator.generate_use_case(query, top_k, search_mode, session_id)
         elif mode == "test_cases":
-            result = generator.generate_test_cases(query, top_k, search_mode)
+            result = generator.generate_test_cases(query, top_k, search_mode, session_id)
         elif mode == "both":
-            result = generator.generate_combined(query, top_k, search_mode)
+            result = generator.generate_combined(query, top_k, search_mode, session_id)
         else:
             raise HTTPException(
                 status_code=400,
@@ -224,6 +179,16 @@ async def reset_index():
     except Exception as e:
         logger.error(f"Index reset failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/session")
+async def create_session():
+    """Generates a new session ID for testing."""
+    import uuid
+    session_id = str(uuid.uuid4())
+    logger.info(f"Created new session: {session_id}")
+    return {"session_id": session_id}
+
 
 
 if __name__ == "__main__":

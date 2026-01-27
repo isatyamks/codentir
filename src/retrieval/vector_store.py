@@ -88,7 +88,7 @@ class VectorStore:
                     
                     metadatas.append(flat_metadata)
                 
-                self.collection.add(
+                self.collection.upsert(
                     ids=ids,
                     documents=documents,
                     embeddings=embeddings,

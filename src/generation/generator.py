@@ -7,8 +7,9 @@ from src.generation.test_case_generator import TestCaseGenerator
 from src.generation.output_formatter import OutputFormatter
 from src.retrieval import Retriever
 from src.guards import GuardOrchestrator
-from src.config import settings, get_generation_prompt, SYSTEM_PROMPT
+from src.config import settings, get_generation_prompt, SYSTEM_PROMPT, CONTEXTUALIZE_QUERY_PROMPT
 from src.utils import get_logger, timer, metrics_collector
+from src.utils.session_manager import SessionManager
 
 logger = get_logger(__name__)
 
@@ -25,21 +26,58 @@ class Generator:
         
         self.retriever = Retriever()
         self.guards = GuardOrchestrator()
+        self.session_manager = SessionManager()
         
         logger.info("Generator initialized successfully")
     
+    def _contextualize_query(self, query: str, session_id: str) -> str:
+        """
+        Rewrites the query to be standalone based on session history.
+        """
+        if not session_id:
+            return query
+            
+        history = self.session_manager.format_history_for_llm(session_id)
+        if not history:
+            return query
+            
+        try:
+            prompt = CONTEXTUALIZE_QUERY_PROMPT.format(
+                chat_history=history,
+                question=query
+            )
+            
+            response = self.llm_client.generate(
+                prompt=prompt,
+                temperature=0.3, # Low temp for faithful rewriting
+                max_tokens=200
+            )
+            
+            rewritten_query = response["content"].strip()
+            if rewritten_query != query:
+                logger.info(f"Query contextualized: '{query}' -> '{rewritten_query}'")
+            return rewritten_query
+            
+        except Exception as e:
+            logger.warning(f"Failed to contextualize query: {e}")
+            return query
+
     def generate_use_case(
         self,
         query: str,
         top_k: int = None,
-        search_mode: str = "hybrid"
+        search_mode: str = "hybrid",
+        session_id: str = None
     ) -> Dict[str, Any]:
  
-        logger.info(f"Starting use case generation for: '{query}'")
+        logger.info(f"Starting use case generation for: '{query}' (Session: {session_id})")
         
         try:
             with timer("full_use_case_pipeline"):
-                query_validation = self.guards.validate_query(query)
+                # 1. Contextualize Query
+                processing_query = self._contextualize_query(query, session_id)
+                
+                query_validation = self.guards.validate_query(processing_query)
                 
                 if not query_validation["is_safe"]:
                     logger.warning("Query failed safety check")
@@ -51,14 +89,14 @@ class Generator:
                     )
                 
                 context_result = self.retriever.retrieve_with_context(
-                    query=query,
+                    query=processing_query,
                     top_k=top_k,
                     search_mode=search_mode
                 )
                 
                 retrieval_validation = self.guards.validate_retrieval(
                     context_result["chunks"],
-                    query
+                    processing_query
                 )
                 
                 if not retrieval_validation["is_sufficient"]:
@@ -74,7 +112,7 @@ class Generator:
                     }
                 
                 use_case = self.use_case_generator.generate(
-                    query=query,
+                    query=processing_query,
                     context_chunks=context_result["chunks"],
                     avg_score=context_result["avg_score"]
                 )
@@ -85,7 +123,7 @@ class Generator:
                 output_validation = self.guards.validate_output(
                     generated_output=self.formatter.to_json_string(use_case["use_case"]),
                     context_chunks=context_result["chunks"],
-                    query=query
+                    query=processing_query
                 )
                 
                 use_case["validation"] = {
@@ -106,6 +144,14 @@ class Generator:
                 
                 metrics_collector.increment_counter("use_cases_generated")
                 
+                # Save to session
+                if session_id:
+                     self.session_manager.add_turn(
+                        session_id, 
+                        query, 
+                        f"Generated use case: {use_case.get('use_case', {}).get('title', 'Untitled')}"
+                    )
+                
                 logger.info("Use case generated successfully")
                 return use_case
         
@@ -121,14 +167,18 @@ class Generator:
         self,
         query: str,
         top_k: int = None,
-        search_mode: str = "hybrid"
+        search_mode: str = "hybrid",
+        session_id: str = None
     ) -> Dict[str, Any]:
         
-        logger.info(f"Starting test case generation for: '{query}'")
+        logger.info(f"Starting test case generation for: '{query}' (Session: {session_id})")
         
         try:
             with timer("full_test_case_pipeline"):
-                query_validation = self.guards.validate_query(query)
+                # 1. Contextualize Query
+                processing_query = self._contextualize_query(query, session_id)
+
+                query_validation = self.guards.validate_query(processing_query)
                 
                 if not query_validation["is_safe"]:
                     logger.warning("Query failed safety check")
@@ -140,14 +190,14 @@ class Generator:
                     )
                 
                 context_result = self.retriever.retrieve_with_context(
-                    query=query,
+                    query=processing_query,
                     top_k=top_k,
                     search_mode=search_mode
                 )
                 
                 retrieval_validation = self.guards.validate_retrieval(
                     context_result["chunks"],
-                    query
+                    processing_query
                 )
                 
                 if not retrieval_validation["is_sufficient"]:
@@ -163,7 +213,7 @@ class Generator:
                     }
                 
                 test_cases = self.test_case_generator.generate(
-                    query=query,
+                    query=processing_query,
                     context_chunks=context_result["chunks"],
                     avg_score=context_result["avg_score"]
                 )
@@ -174,7 +224,7 @@ class Generator:
                 output_validation = self.guards.validate_output(
                     generated_output=self.formatter.to_json_string(test_cases["test_cases"]),
                     context_chunks=context_result["chunks"],
-                    query=query
+                    query=processing_query
                 )
                 
                 test_cases["validation"] = {
@@ -195,6 +245,16 @@ class Generator:
                 
                 metrics_collector.increment_counter("test_cases_generated")
                 
+                # Save to session
+                if session_id:
+                     titles = [tc.get("title", "Untitled") for tc in test_cases.get("test_cases", [])]
+                     summary = f"Generated {len(titles)} test cases: {', '.join(titles)}"
+                     self.session_manager.add_turn(
+                        session_id, 
+                        query, 
+                        summary
+                    )
+
                 logger.info(f"Generated {len(test_cases['test_cases'])} test cases")
                 return test_cases
         
@@ -210,14 +270,18 @@ class Generator:
         self,
         query: str,
         top_k: int = None,
-        search_mode: str = "hybrid"
+        search_mode: str = "hybrid",
+        session_id: str = None
     ) -> Dict[str, Any]:
         
-        logger.info(f"Starting combined generation for: '{query}'")
+        logger.info(f"Starting combined generation for: '{query}' (Session: {session_id})")
         
         try:
             with timer("full_combined_pipeline"):
-                query_validation = self.guards.validate_query(query)
+                # 1. Contextualize Query
+                processing_query = self._contextualize_query(query, session_id)
+
+                query_validation = self.guards.validate_query(processing_query)
                 
                 if not query_validation["is_safe"]:
                     return self.formatter.create_error_response(
@@ -227,14 +291,14 @@ class Generator:
                     )
                 
                 context_result = self.retriever.retrieve_with_context(
-                    query=query,
+                    query=processing_query,
                     top_k=top_k,
                     search_mode=search_mode
                 )
                 
                 retrieval_validation = self.guards.validate_retrieval(
                     context_result["chunks"],
-                    query
+                    processing_query
                 )
                 
                 if not retrieval_validation["is_sufficient"]:
@@ -248,7 +312,7 @@ class Generator:
                 context_text = "\n---\n".join([c["content"] for c in context_result["chunks"]])
                 
                 prompt = get_generation_prompt(
-                    query=query,
+                    query=processing_query,
                     mode="both",
                     context_chunks=context_text,
                     avg_score=context_result["avg_score"]
@@ -281,6 +345,14 @@ class Generator:
                 
                 metrics_collector.increment_counter("combined_generated")
                 
+                # Save to session
+                if session_id:
+                     self.session_manager.add_turn(
+                        session_id, 
+                        query, 
+                        f"Generated combined use case: {formatted.get('use_case', {}).get('title', 'Untitled')} and {len(formatted.get('test_cases', []))} test cases"
+                    )
+
                 logger.info("Combined generation successful")
                 return formatted
         

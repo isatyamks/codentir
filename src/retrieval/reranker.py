@@ -14,7 +14,6 @@ class Reranker:
         
         if settings.ENABLE_RERANKING:
             self._initialize_model()
-    
     def _initialize_model(self):
         try:
             from sentence_transformers import CrossEncoder
@@ -59,7 +58,7 @@ class Reranker:
             
             for i, result in enumerate(results):
                 result['rerank_score'] = float(scores[i])
-                result['original_rank'] = i + 1
+                result['original_rank'] = i+1
             
             reranked_results = sorted(
                 results,

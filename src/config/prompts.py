@@ -78,7 +78,7 @@ You MUST generate a JSON response with the following structure:
       "title": "brief test case title",
       "preconditions": ["setup required before test"],
       "steps": ["detailed test steps"],
-      "test_data": {{}},
+      "test_data": {{"param 1": "value 1", "param 2": "value 2"}},
       "expected_result": "expected outcome",
       "priority": "high|medium|low",
       "category": "test category (e.g., functional, security)"
@@ -172,6 +172,14 @@ Please generate a JSON response with clarifying questions:
 Be specific about what information is needed to proceed.
 """
 
+CONTEXTUALIZE_QUERY_PROMPT = """Given a chat history and the latest user question which might reference context in the chat history, formulate a standalone question which can be understood without the chat history. Do NOT answer the question, just reformulate it if needed and otherwise return it as is.
+
+Chat History:
+{chat_history}
+
+Latest Question: {question}
+
+Standalone Question:"""
 
 def get_generation_prompt(
     query: str,
@@ -238,4 +246,3 @@ PROMPT_INJECTION_PATTERNS = [
     "ignore the above",
     "instead of",
 ]
-
