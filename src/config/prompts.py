@@ -78,7 +78,7 @@ You MUST generate a JSON response with the following structure:
       "title": "brief test case title",
       "preconditions": ["setup required before test"],
       "steps": ["detailed test steps"],
-      "test_data": {{}},
+      "test_data": {{"param 1": "value 1", "param 2": "value 2"}},
       "expected_result": "expected outcome",
       "priority": "high|medium|low",
       "category": "test category (e.g., functional, security)"

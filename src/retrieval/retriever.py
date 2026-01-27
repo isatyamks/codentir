@@ -75,7 +75,14 @@ class Retriever:
                     "error": "No processed chunks to index"
                 }
             
-            chunk_files = list(processed_dir.glob("*.json"))
+            if file_paths:
+                chunk_files = []
+                for file_path in file_paths:
+                    json_path = processed_dir / f"{file_path.stem}_chunks.json"
+                    if json_path.exists():
+                        chunk_files.append(json_path)
+            else:
+                chunk_files = list(processed_dir.glob("*.json"))
             
             if not chunk_files:
                 logger.warning("No chunk files found")
