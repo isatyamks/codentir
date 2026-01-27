@@ -34,49 +34,30 @@ docs/
 !data/uploads/.gitkeep
 !data/processed/.gitkeep
 !data/vector_store/.gitkeep
-!data/cache/.gitkeep
-
-# Logs
-*.log
-
-# Testing
+!data/cache/.gitkeep*.log
+data
 .pytest_cache/
 .coverage
 htmlcov/
 .tox/
 .hypothesis/
-
-# ChromaDB
 chroma.db/
 *.db
 *.sqlite3
-
-# Jupyter Notebooks
 .ipynb_checkpoints
 *.ipynb
-
-# OS
 Thumbs.db
 desktop.ini
-
-# Temporary Files
 *.tmp
 *.temp
 tmp/
 temp/
-
-# Models (large files)
 models/
 *.bin
 *.h5
 *.pkl
 *.pth
-
-# API Keys & Secrets
 secrets/
 credentials/
 *.key
 *.pem
-
-
-data
