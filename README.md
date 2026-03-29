@@ -549,7 +549,7 @@ sudo nano /etc/systemd/system/devasssure.service
 
 ```ini
 [Unit]
-Description=DevAssure RAG API
+Description=Multimodal RAG API
 After=network.target
 
 [Service]

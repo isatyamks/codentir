@@ -30,7 +30,7 @@ retriever = None
 async def startup_event():
     global generator, retriever
     
-    logger.info("Starting DevAssure RAG API...")
+    logger.info("Starting Multimodal RAG API...")
     
     try:
         generator = Generator()
@@ -45,7 +45,7 @@ async def startup_event():
 @app.get("/")
 async def root():
     return {
-        "name": "DevAssure RAG API",
+        "name": "Multimodal RAG API",
         "version": "1.0.0",
         "status": "running",
         "endpoints": {
