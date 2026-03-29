@@ -19,7 +19,8 @@ class UseCaseGenerator:
         self,
         query: str,
         context_chunks: List[Dict[str, Any]],
-        avg_score: float = 0.0
+        avg_score: float = 0.0,
+        chat_history: str = ""
     ) -> Dict[str, Any]:
     
         logger.info(f"Generating use case for query: '{query}'")
@@ -32,7 +33,8 @@ class UseCaseGenerator:
                     query=query,
                     mode="use_case",
                     context_chunks=context_text,
-                    avg_score=avg_score
+                    avg_score=avg_score,
+                    chat_history=chat_history
                 )
                 
                 response = self.llm_client.generate(

@@ -111,10 +111,13 @@ class Generator:
                         "success": False
                     }
                 
+                chat_history = self.session_manager.format_history_for_llm(session_id) if session_id else ""
+                
                 use_case = self.use_case_generator.generate(
                     query=processing_query,
                     context_chunks=context_result["chunks"],
-                    avg_score=context_result["avg_score"]
+                    avg_score=context_result["avg_score"],
+                    chat_history=chat_history
                 )
                 
                 if not use_case.get("success", False):
@@ -212,10 +215,13 @@ class Generator:
                         "success": False
                     }
                 
+                chat_history = self.session_manager.format_history_for_llm(session_id) if session_id else ""
+                
                 test_cases = self.test_case_generator.generate(
                     query=processing_query,
                     context_chunks=context_result["chunks"],
-                    avg_score=context_result["avg_score"]
+                    avg_score=context_result["avg_score"],
+                    chat_history=chat_history
                 )
                 
                 if not test_cases.get("success", False):
@@ -311,11 +317,14 @@ class Generator:
                 
                 context_text = "\n---\n".join([c["content"] for c in context_result["chunks"]])
                 
+                chat_history = self.session_manager.format_history_for_llm(session_id) if session_id else ""
+                
                 prompt = get_generation_prompt(
                     query=processing_query,
                     mode="both",
                     context_chunks=context_text,
-                    avg_score=context_result["avg_score"]
+                    avg_score=context_result["avg_score"],
+                    chat_history=chat_history
                 )
                 
                 response = self.llm_client.generate(

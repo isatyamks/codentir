@@ -36,7 +36,7 @@ class VectorStore:
             
             self.collection = self.client.get_or_create_collection(
                 name=self.collection_name,
-                metadata={"description": "DevAssure knowledge base"}
+                metadata={"description": "Multimodal knowledge base", "hnsw:space": "cosine"}
             )
             
             logger.info(
@@ -138,7 +138,7 @@ class VectorStore:
         top_k: int = None,
         threshold: float = None
     ) -> List[Dict[str, Any]]:
-        threshold = threshold or settings.SIMILARITY_THRESHOLD
+        threshold = threshold if threshold is not None else settings.SIMILARITY_THRESHOLD
         top_k = top_k or settings.TOP_K
         
         results = self.query(query_embedding, top_k=top_k)

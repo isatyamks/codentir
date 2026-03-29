@@ -20,6 +20,7 @@ class TestCaseGenerator:
         query: str,
         context_chunks: List[Dict[str, Any]],
         avg_score: float = 0.0,
+        chat_history: str = "",
         min_positive: int = 3,
         min_negative: int = 2,
         min_boundary: int = 2
@@ -35,7 +36,8 @@ class TestCaseGenerator:
                     query=query,
                     mode="test_case",
                     context_chunks=context_text,
-                    avg_score=avg_score
+                    avg_score=avg_score,
+                    chat_history=chat_history
                 )
                 
                 response = self.llm_client.generate(

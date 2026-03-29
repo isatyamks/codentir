@@ -1,0 +1,179 @@
+{
+    "info": {
+        "_postman_id": "b1a2c3d4-e5f6-7890-1234-56789abcdef0",
+        "name": "Multimodal RAG API",
+        "description": "Endpoints to ingest documents and query use cases/test cases.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "1. Server Root",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "http://localhost:8000/",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "8000",
+                    "path": [
+                        ""
+                    ]
+                }
+            }
+        },
+        {
+            "name": "2. Health Check",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "http://localhost:8000/health",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "8000",
+                    "path": [
+                        "health"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "3. New Session",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "http://localhost:8000/session",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "8000",
+                    "path": [
+                        "session"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "4. Upload Documents",
+            "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                    "mode": "formdata",
+                    "formdata": [
+                        {
+                            "key": "files",
+                            "type": "file",
+                            "src": [],
+                            "description": "Select text, PDF, Markdown, Docx, or Image files"
+                        }
+                    ]
+                },
+                "url": {
+                    "raw": "http://localhost:8000/upload",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "8000",
+                    "path": [
+                        "upload"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "5. Query Generation",
+            "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                    "mode": "formdata",
+                    "formdata": [
+                        {
+                            "key": "query",
+                            "value": "generate usecases for flight booking",
+                            "type": "text"
+                        },
+                        {
+                            "key": "mode",
+                            "value": "both",
+                            "description": "use_case | test_cases | both",
+                            "type": "text"
+                        },
+                        {
+                            "key": "top_k",
+                            "value": "5",
+                            "type": "text"
+                        },
+                        {
+                            "key": "search_mode",
+                            "value": "hybrid",
+                            "description": "hybrid | vector | keyword",
+                            "type": "text"
+                        },
+                        {
+                            "key": "session_id",
+                            "value": "my-session-id-1234",
+                            "type": "text"
+                        }
+                    ]
+                },
+                "url": {
+                    "raw": "http://localhost:8000/query",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "8000",
+                    "path": [
+                        "query"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "6. Statistics",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "http://localhost:8000/stats",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "8000",
+                    "path": [
+                        "stats"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "7. Reset Database Index",
+            "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                    "raw": "http://localhost:8000/index",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "8000",
+                    "path": [
+                        "index"
+                    ]
+                }
+            }
+        }
+    ]
+}

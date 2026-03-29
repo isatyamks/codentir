@@ -172,6 +172,13 @@ Please generate a JSON response with clarifying questions:
 Be specific about what information is needed to proceed.
 """
 
+CHAT_HISTORY_TEMPLATE = """<chat_history>
+Previous Conversation Context:
+
+{chat_history}
+</chat_history>
+"""
+
 CONTEXTUALIZE_QUERY_PROMPT = """Given a chat history and the latest user question which might reference context in the chat history, formulate a standalone question which can be understood without the chat history. Do NOT answer the question, just reformulate it if needed and otherwise return it as is.
 
 Chat History:
@@ -185,23 +192,28 @@ def get_generation_prompt(
     query: str,
     mode: str = "both",
     context_chunks: str = "",
-    avg_score: float = 0.0
+    avg_score: float = 0.0,
+    chat_history: str = ""
 ) -> str:
     context_section = RETRIEVAL_CONTEXT_TEMPLATE.format(
         context_chunks=context_chunks,
         avg_score=avg_score
     )
     
+    history_section = ""
+    if chat_history:
+        history_section = CHAT_HISTORY_TEMPLATE.format(chat_history=chat_history) + "\n\n"
+    
     if mode == "use_case":
         task_prompt = USE_CASE_GENERATION_PROMPT.format(query=query)
     elif mode == "test_case":
         task_prompt = TEST_CASE_GENERATION_PROMPT.format(query=query)
     elif mode == "insufficient":
-        return SYSTEM_PROMPT + "\n\n" + INSUFFICIENT_CONTEXT_PROMPT.format(query=query)
+        return SYSTEM_PROMPT + "\n\n" + history_section + INSUFFICIENT_CONTEXT_PROMPT.format(query=query)
     else:
         task_prompt = COMBINED_GENERATION_PROMPT.format(query=query)
     
-    return SYSTEM_PROMPT + "\n\n" + context_section + "\n\n" + task_prompt
+    return SYSTEM_PROMPT + "\n\n" + history_section + context_section + "\n\n" + task_prompt
 
 
 HALLUCINATION_CHECK_PROMPT = """You are a fact-checker. Your task is to verify if the generated output is grounded in the provided context.

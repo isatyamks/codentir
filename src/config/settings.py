@@ -61,6 +61,7 @@ class Settings(BaseSettings):
     MAX_WORKERS: int = 4
     ENABLE_CACHE: bool = True
     CACHE_DIR: str = "./data/cache"
+    SESSION_DIR: str = "./data/sessions"
     
     LOG_DIR: str = "./logs"
     LOG_FILE: str = "devasssure.log"
@@ -91,6 +92,10 @@ class Settings(BaseSettings):
         return self.base_dir / self.CACHE_DIR.lstrip("./")
     
     @property
+    def session_path(self) -> Path:
+        return self.base_dir / self.SESSION_DIR.lstrip("./")
+    
+    @property
     def allowed_extensions_list(self) -> list[str]:
         return [ext.strip() for ext in self.ALLOWED_EXTENSIONS.split(",")]
     
@@ -104,6 +109,7 @@ class Settings(BaseSettings):
         self.upload_path.mkdir(parents=True, exist_ok=True)
         self.vector_store_full_path.mkdir(parents=True, exist_ok=True)
         self.log_path.mkdir(parents=True, exist_ok=True)
+        self.session_path.mkdir(parents=True, exist_ok=True)
         if self.ENABLE_CACHE:
             self.cache_path.mkdir(parents=True, exist_ok=True)
 

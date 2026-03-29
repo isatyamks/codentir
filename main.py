@@ -30,7 +30,7 @@ retriever = None
 async def startup_event():
     global generator, retriever
     
-    logger.info("Starting DevAssure RAG API...")
+    logger.info("Starting Multimodal RAG API...")
     
     try:
         generator = Generator()
@@ -45,7 +45,7 @@ async def startup_event():
 @app.get("/")
 async def root():
     return {
-        "name": "DevAssure RAG API",
+        "name": "Multimodal RAG API",
         "version": "1.0.0",
         "status": "running",
         "endpoints": {
@@ -99,6 +99,9 @@ async def upload_files(files: List[UploadFile] = File(...)):
                 )
             
             file_path = settings.upload_path / file.filename
+            
+            # Ensure upload directory exists
+            settings.upload_path.mkdir(parents=True, exist_ok=True)
             
             with open(file_path, "wb") as buffer:
                 shutil.copyfileobj(file.file, buffer)
