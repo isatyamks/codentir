@@ -36,7 +36,7 @@ class VectorStore:
             
             self.collection = self.client.get_or_create_collection(
                 name=self.collection_name,
-                metadata={"description": "DevAssure knowledge base"}
+                metadata={"description": "Multimodal RAG knowledge base"}
             )
             
             logger.info(

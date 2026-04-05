@@ -7,6 +7,17 @@ __pycache__
 .Python
 env/
 venv/
+.venv/
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build artifacts
 pip-log.txt
 pip-delete-this-directory.txt
 .tox/
@@ -16,10 +27,36 @@ pip-delete-this-directory.txt
 nosetests.xml
 coverage.xml
 *.cover
-*.log
 .pytest_cache/
+htmlcov/
+
+# Logs
+*.log
+logs/*
+
+# Data directories (populated at runtime)
 data/uploads/*
 data/vector_store/*
-logs/*
-.env
-sample.env
+data/processed/*
+data/cache/*
+data/sessions/*
+
+# Docker
+docker-compose.yml
+Dockerfile
+
+# Documentation
+README.md
+docs/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Misc
+*.tmp
+*.temp
+tmp/
+temp/
+requests.json

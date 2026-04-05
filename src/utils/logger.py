@@ -48,7 +48,7 @@ class UnicodeSanitizingFilter(logging.Filter):
 
 
 def setup_logger(
-    name: str = "devasssure",
+    name: str = "multimodal_rag",
     log_level: Optional[str] = None,
     log_file: Optional[str] = None
 ) -> logging.Logger:
@@ -112,7 +112,7 @@ def setup_logger(
     return logger
 
 
-def get_logger(name: str = "devasssure") -> logging.Logger:
+def get_logger(name: str = "multimodal_rag") -> logging.Logger:
     return logging.getLogger(name) if logging.getLogger(name).handlers else setup_logger(name)
 
 

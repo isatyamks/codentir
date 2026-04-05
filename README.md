@@ -544,12 +544,12 @@ mypy src/
 ### Systemd Service
 
 ```bash
-sudo nano /etc/systemd/system/devasssure.service
+sudo nano /etc/systemd/system/multimodal-rag.service
 ```
 
 ```ini
 [Unit]
-Description=DevAssure RAG API
+Description=Multimodal RAG API
 After=network.target
 
 [Service]
@@ -565,8 +565,8 @@ WantedBy=multi-user.target
 ```
 
 ```bash
-sudo systemctl enable devasssure
-sudo systemctl start devasssure
+sudo systemctl enable multimodal-rag
+sudo systemctl start multimodal-rag
 ```
 
 ### Docker
