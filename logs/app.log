@@ -1029,3 +1029,35 @@
 2026-05-29 23:34:11 - src.retrieval.hybrid_search - [32mINFO[0m - hybrid_search.py:189 - Hybrid search returned 3 results (alpha=0.3)
 2026-05-29 23:34:11 - src.generation.test_case_generator - [32mINFO[0m - test_case_generator.py:28 - Generating test cases for query: 'Identifying Core Functional Requirements for Flight Filters'
 2026-05-29 23:34:42 - src.generation.test_case_generator - [32mINFO[0m - test_case_generator.py:69 - Generated 7 test cases: 3 positive, 2 negative, 2 boundary
+2026-05-29 23:46:17 - main - [32mINFO[0m - main.py:30 - Starting Multimodal RAG API...
+2026-05-29 23:46:18 - src.generation.llm_client - [32mINFO[0m - llm_client.py:60 - Groq client initialized
+2026-05-29 23:46:18 - src.generation.llm_client - [32mINFO[0m - llm_client.py:31 - LLMClient initialized: groq - llama-3.3-70b-versatile
+2026-05-29 23:46:18 - src.generation.output_formatter - [32mINFO[0m - output_formatter.py:12 - OutputFormatter initialized
+2026-05-29 23:46:18 - src.generation.use_case_generator - [32mINFO[0m - use_case_generator.py:16 - UseCaseGenerator initialized
+2026-05-29 23:46:18 - src.generation.output_formatter - [32mINFO[0m - output_formatter.py:12 - OutputFormatter initialized
+2026-05-29 23:46:18 - src.generation.test_case_generator - [32mINFO[0m - test_case_generator.py:16 - TestCaseGenerator initialized
+2026-05-29 23:46:18 - src.generation.output_formatter - [32mINFO[0m - output_formatter.py:12 - OutputFormatter initialized
+2026-05-29 23:46:22 - src.retrieval.embeddings - [32mINFO[0m - embeddings.py:24 - Loading embedding model: all-MiniLM-L6-v2
+2026-05-29 23:46:28 - src.retrieval.embeddings - [32mINFO[0m - embeddings.py:27 - Embedding model loaded successfully
+2026-05-29 23:46:28 - src.retrieval.hybrid_search - [32mINFO[0m - hybrid_search.py:27 - HybridSearch initialized with alpha=0.3
+2026-05-29 23:46:28 - src.ingestion.file_handler - [32mINFO[0m - file_handler.py:26 - [OK] TextParser initialized
+2026-05-29 23:46:28 - src.ingestion.file_handler - [32mINFO[0m - file_handler.py:32 - [OK] PDFParser initialized
+2026-05-29 23:46:29 - src.ingestion.file_handler - [32mINFO[0m - file_handler.py:38 - [OK] DOCXParser initialized
+2026-05-29 23:46:29 - src.ingestion.parsers.image_parser - [32mINFO[0m - image_parser.py:36 - Initialized Tesseract OCR
+2026-05-29 23:46:29 - src.ingestion.file_handler - [32mINFO[0m - file_handler.py:44 - [OK] ImageParser initialized
+2026-05-29 23:46:29 - src.ingestion.file_handler - [32mINFO[0m - file_handler.py:48 - Initialized 4 parsers
+2026-05-29 23:46:29 - src.ingestion.chunker - [32mINFO[0m - chunker.py:53 - TextChunker initialized: chunk_size=512, overlap=50, min_size=100
+2026-05-29 23:46:29 - src.ingestion.pipeline - [32mINFO[0m - pipeline.py:23 - IngestionPipeline initialized
+2026-05-29 23:46:29 - src.guards.prompt_injection_guard - [32mINFO[0m - prompt_injection_guard.py:15 - PromptInjectionGuard initialized with 20 patterns
+2026-05-29 23:46:29 - src.guards.evidence_threshold - [32mINFO[0m - evidence_threshold.py:19 - EvidenceThreshold initialized: min_confidence=0.5, min_chunks=1
+2026-05-29 23:46:29 - src.guards.hallucination_guard - [32mINFO[0m - hallucination_guard.py:15 - HallucinationGuard initialized with max_deviation=0.3
+2026-05-29 23:46:29 - src.guards.guard_orchestrator - [32mINFO[0m - guard_orchestrator.py:19 - GuardOrchestrator initialized with all guards
+2026-05-29 23:46:29 - main - [32mINFO[0m - main.py:33 - API initialized successfully
+2026-05-29 23:46:53 - main - [32mINFO[0m - main.py:21 - Starting Multimodal RAG API...
+2026-05-29 23:46:54 - src.generation.llm_client - [32mINFO[0m - llm_client.py:60 - Groq client initialized
+2026-05-29 23:46:54 - src.generation.llm_client - [32mINFO[0m - llm_client.py:31 - LLMClient initialized: groq - llama-3.3-70b-versatile
+2026-05-29 23:46:54 - src.generation.output_formatter - [32mINFO[0m - output_formatter.py:12 - OutputFormatter initialized
+2026-05-29 23:46:54 - src.generation.use_case_generator - [32mINFO[0m - use_case_generator.py:16 - UseCaseGenerator initialized
+2026-05-29 23:46:54 - src.generation.output_formatter - [32mINFO[0m - output_formatter.py:12 - OutputFormatter initialized
+2026-05-29 23:46:54 - src.generation.test_case_generator - [32mINFO[0m - test_case_generator.py:16 - TestCaseGenerator initialized
+2026-05-29 23:46:54 - src.generation.output_formatter - [32mINFO[0m - output_formatter.py:12 - OutputFormatter initialized
