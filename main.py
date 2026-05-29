@@ -103,7 +103,7 @@ async def query_system(
     try:
         if mode == "use_case":
             result = generator.generate_use_case(query, top_k, search_mode, session_id)
-        elif mode == "test_cases":
+        elif mode == "test_case":
             result = generator.generate_test_cases(query, top_k, search_mode, session_id)
         elif mode == "both":
             result = generator.generate_combined(query, top_k, search_mode, session_id)

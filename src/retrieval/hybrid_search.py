@@ -185,7 +185,7 @@ class HybridSearch:
     ) -> List[Dict[str, Any]]:
         if mode == "vector":
             return self.vector_search(query, top_k)
-        elif mode == "keyword" or mode == "bm25":
+        elif mode == "keyword":
             return self.bm25_search(query, top_k)
         else:
             return self.hybrid_search(query, top_k)
