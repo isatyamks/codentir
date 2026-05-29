@@ -3,9 +3,7 @@ from typing import Dict, Any, List, Optional
 from src.generation.llm_client import LLMClient
 from src.generation.output_formatter import OutputFormatter
 from src.config import get_generation_prompt, SYSTEM_PROMPT
-from src.utils import get_logger, timer
-
-logger = get_logger(__name__)
+from src.utils import timer
 
 
 class UseCaseGenerator:
@@ -13,7 +11,6 @@ class UseCaseGenerator:
     def __init__(self, llm_client: Optional[LLMClient] = None):
         self.llm_client = llm_client or LLMClient()
         self.formatter = OutputFormatter()
-        logger.info("UseCaseGenerator initialized")
     
     def generate(
         self,
@@ -22,8 +19,6 @@ class UseCaseGenerator:
         avg_score: float = 0.0
     ) -> Dict[str, Any]:
     
-        logger.info(f"Generating use case for query: '{query}'")
-        
         try:
             with timer("use_case_generation"):
                 context_text = self._format_context(context_chunks)
@@ -44,7 +39,6 @@ class UseCaseGenerator:
                 parsed = self.formatter.parse_json_response(response["content"])
                 
                 if not parsed:
-                    logger.error("Failed to parse use case response")
                     return self.formatter.create_error_response(
                         query=query,
                         error_type="parse_error",
@@ -52,7 +46,7 @@ class UseCaseGenerator:
                     )
                 
                 if not self.formatter.validate_use_case(parsed):
-                    logger.warning("Use case validation failed, attempting to fix")
+                    pass
                 
                 formatted = self.formatter.format_use_case(parsed)
                 
@@ -60,11 +54,9 @@ class UseCaseGenerator:
                 formatted["model"] = response.get("model", "")
                 formatted["success"] = True
                 
-                logger.info("Use case generated successfully")
                 return formatted
         
         except Exception as e:
-            logger.error(f"Use case generation failed: {e}")
             return self.formatter.create_error_response(
                 query=query,
                 error_type="generation_error",

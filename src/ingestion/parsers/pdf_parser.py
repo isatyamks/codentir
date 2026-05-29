@@ -3,9 +3,6 @@ from typing import Optional
 import io
 
 from src.ingestion.parsers.base_parser import BaseParser, ParsedDocument
-from src.utils import get_logger
-
-logger = get_logger(__name__)
 
 
 class PDFParser(BaseParser):
@@ -20,14 +17,12 @@ class PDFParser(BaseParser):
             import PyPDF2
             self.has_pypdf2 = True
         except ImportError:
-            logger.warning("PyPDF2 not installed. PDF parsing may be limited.")
             self.has_pypdf2 = False
         
         try:
             import pdfplumber
             self.has_pdfplumber = True
         except ImportError:
-            logger.warning("pdfplumber not installed. Using PyPDF2 only.")
             self.has_pdfplumber = False
         
         if not self.has_pypdf2 and not self.has_pdfplumber:
@@ -38,7 +33,6 @@ class PDFParser(BaseParser):
     
     def parse(self, file_path: Path) -> ParsedDocument:
         self.validate_file(file_path)
-        logger.info(f"Parsing PDF file: {file_path.name}")
         
         if self.has_pdfplumber:
             content, metadata = self._parse_with_pdfplumber(file_path)
@@ -48,12 +42,6 @@ class PDFParser(BaseParser):
         base_metadata = self.extract_basic_metadata(file_path)
         base_metadata.update(metadata)
         base_metadata["parser"] = "PDFParser"
-        
-        logger.info(
-            f"Successfully parsed {file_path.name}: "
-            f"{base_metadata.get('page_count', 0)} pages, "
-            f"{len(content.split())} words"
-        )
         
         return ParsedDocument(
             file_path=file_path,
@@ -78,7 +66,6 @@ class PDFParser(BaseParser):
                     if text:
                         pages_text.append(f"[Page {i+1}]\n{text}")
                 except Exception as e:
-                    logger.warning(f"Error extracting page {i+1}: {e}")
                     pages_text.append(f"[Page {i+1}]\n[Error extracting text]")
         
         content = "\n\n".join(pages_text)
@@ -108,7 +95,6 @@ class PDFParser(BaseParser):
                     if text:
                         pages_text.append(f"[Page {i+1}]\n{text}")
                 except Exception as e:
-                    logger.warning(f"Error extracting page {i+1}: {e}")
                     pages_text.append(f"[Page {i+1}]\n[Error extracting text]")
         
         content = "\n\n".join(pages_text)

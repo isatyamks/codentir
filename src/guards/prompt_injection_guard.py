@@ -2,9 +2,6 @@ from typing import Dict, Any, List, Optional
 import re
 
 from src.config import settings, PROMPT_INJECTION_PATTERNS
-from src.utils import get_logger
-
-logger = get_logger(__name__)
 
 
 class PromptInjectionGuard:
@@ -12,12 +9,10 @@ class PromptInjectionGuard:
     def __init__(self):
         self.injection_patterns = PROMPT_INJECTION_PATTERNS.copy()
         self.custom_patterns = []
-        logger.info(f"PromptInjectionGuard initialized with {len(self.injection_patterns)} patterns")
     
     def add_pattern(self, pattern: str):
         if pattern not in self.custom_patterns:
             self.custom_patterns.append(pattern.lower())
-            logger.debug(f"Added custom pattern: {pattern}")
     
     def check_query(self, query: str) -> Dict[str, Any]:
         if not query:
@@ -35,7 +30,6 @@ class PromptInjectionGuard:
         for pattern in all_patterns:
             if pattern in query_lower:
                 detected.append(pattern)
-                logger.warning(f"Detected injection pattern in query: '{pattern}'")
         
         risk_level = self._assess_risk_level(len(detected))
         
@@ -62,11 +56,6 @@ class PromptInjectionGuard:
             if pattern in content_lower:
                 detected.append(pattern)
         
-        if detected:
-            logger.warning(
-                f"Document contains {len(detected)} potential injection patterns"
-            )
-        
         return {
             "is_safe": len(detected) == 0,
             "detected_patterns": detected,
@@ -88,8 +77,6 @@ class PromptInjectionGuard:
                     sanitized,
                     flags=re.IGNORECASE
                 )
-            
-            logger.info(f"Sanitized query: removed {len(check_result['detected_patterns'])} patterns")
         
         return sanitized
     
@@ -116,7 +103,6 @@ class PromptInjectionGuard:
             if raise_error:
                 raise ValueError(message)
             else:
-                logger.warning(message)
                 return False
         
         return True

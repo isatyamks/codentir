@@ -5,9 +5,7 @@ from chromadb.config import Settings as ChromaSettings
 
 from src.ingestion import TextChunk
 from src.config import settings
-from src.utils import get_logger, timer
-
-logger = get_logger(__name__)
+from src.utils import timer
 
 class VectorStore:
     def __init__(
@@ -30,7 +28,6 @@ class VectorStore:
                 metadata={"description": "Multimodal RAG knowledge base"}
             )
         except Exception as e:
-            logger.error(f"Failed to initialize ChromaDB: {e}")
             raise
 
     def add_chunks(self, chunks: List[TextChunk], embeddings: List[List[float]]) -> int:
@@ -65,7 +62,6 @@ class VectorStore:
                 )
                 return len(chunks)
         except Exception as e:
-            logger.error(f"Error adding chunks to vector store: {e}")
             return 0
 
     def query(
@@ -89,7 +85,6 @@ class VectorStore:
                     'metadatas': results['metadatas'][0] if results['metadatas'] else []
                 }
         except Exception as e:
-            logger.error(f"Error querying vector store: {e}")
             return {'ids': [], 'documents': [], 'distances': [], 'metadatas': []}
 
     def similarity_search(
@@ -124,7 +119,6 @@ class VectorStore:
             self.collection = None
             return True
         except Exception as e:
-            logger.error(f"Error deleting collection: {e}")
             return False
 
     def reset_collection(self) -> bool:
@@ -133,7 +127,6 @@ class VectorStore:
             self._initialize_store()
             return True
         except Exception as e:
-            logger.error(f"Error resetting collection: {e}")
             return False
 
     def get_stats(self) -> Dict[str, Any]:
@@ -159,5 +152,4 @@ class VectorStore:
                 'metadatas': results['metadatas']
             }
         except Exception as e:
-            logger.error(f"Error retrieving documents: {e}")
             return {'ids': [], 'documents': [], 'metadatas': []}

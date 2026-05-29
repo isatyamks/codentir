@@ -2,9 +2,6 @@ from pathlib import Path
 from typing import Optional
 
 from src.ingestion.parsers.base_parser import BaseParser, ParsedDocument
-from src.utils import get_logger
-
-logger = get_logger(__name__)
 
 
 class DOCXParser(BaseParser):
@@ -26,7 +23,6 @@ class DOCXParser(BaseParser):
     
     def parse(self, file_path: Path) -> ParsedDocument:
         self.validate_file(file_path)
-        logger.info(f"Parsing DOCX file: {file_path.name}")
         
         import docx
         
@@ -62,12 +58,6 @@ class DOCXParser(BaseParser):
             tables_content = self._extract_tables(doc.tables)
             if tables_content:
                 content += "\n\n[TABLES]\n" + tables_content
-        
-        logger.info(
-            f"Successfully parsed {file_path.name}: "
-            f"{metadata['paragraph_count']} paragraphs, "
-            f"{metadata['word_count']} words"
-        )
         
         return ParsedDocument(
             file_path=file_path,

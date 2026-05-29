@@ -1,15 +1,11 @@
 import json
 from typing import Dict, Any, Optional
 
-from src.utils import get_logger
-
-logger = get_logger(__name__)
-
 
 class OutputFormatter:
     
     def __init__(self):
-        logger.info("OutputFormatter initialized")
+        pass
     
     def parse_json_response(self, response: str) -> Optional[Dict[str, Any]]:
         
@@ -32,19 +28,14 @@ class OutputFormatter:
             if start_idx != -1 and end_idx != -1 and start_idx < end_idx:
                 json_str = response[start_idx:end_idx + 1]
                 parsed = json.loads(json_str)
-                logger.debug("Successfully parsed JSON response")
                 return parsed
             
             parsed = json.loads(response)
-            logger.debug("Successfully parsed JSON response")
             return parsed
         
         except json.JSONDecodeError as e:
-            logger.error(f"Failed to parse JSON: {e}")
-            logger.debug(f"Response preview: {response[:500]}...")
             return None
         except Exception as e:
-            logger.error(f"Unexpected error parsing response: {e}")
             return None
     
     def validate_use_case(self, data: Dict[str, Any]) -> bool:
@@ -54,13 +45,11 @@ class OutputFormatter:
         
         for field in required_fields:
             if field not in data:
-                logger.warning(f"Missing required field: {field}")
                 return False
         
         use_case = data.get("use_case", {})
         for field in use_case_fields:
             if field not in use_case:
-                logger.warning(f"Missing use case field: {field}")
                 return False
         
         return True
@@ -68,12 +57,10 @@ class OutputFormatter:
     def validate_test_cases(self, data: Dict[str, Any]) -> bool:
         
         if "test_cases" not in data:
-            logger.warning("Missing test_cases field")
             return False
         
         test_cases = data.get("test_cases", [])
         if not isinstance(test_cases, list) or len(test_cases) == 0:
-            logger.warning("test_cases must be a non-empty list")
             return False
         
         required_fields = ["test_id", "type", "title", "steps", "expected_result"]
@@ -81,7 +68,6 @@ class OutputFormatter:
         for i, tc in enumerate(test_cases):
             for field in required_fields:
                 if field not in tc:
-                    logger.warning(f"Test case {i} missing field: {field}")
                     return False
         
         return True

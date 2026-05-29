@@ -4,9 +4,6 @@ from src.guards.prompt_injection_guard import PromptInjectionGuard
 from src.guards.evidence_threshold import EvidenceThreshold
 from src.guards.hallucination_guard import HallucinationGuard
 from src.config import settings
-from src.utils import get_logger
-
-logger = get_logger(__name__)
 
 
 class GuardOrchestrator:
@@ -15,8 +12,6 @@ class GuardOrchestrator:
         self.prompt_injection_guard = PromptInjectionGuard()
         self.evidence_threshold = EvidenceThreshold()
         self.hallucination_guard = HallucinationGuard()
-        
-        logger.info("GuardOrchestrator initialized with all guards")
     
     def validate_query(
         self,

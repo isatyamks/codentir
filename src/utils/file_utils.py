@@ -5,10 +5,6 @@ from typing import Optional, List, Tuple
 import mimetypes
 
 from src.config import settings
-from src.utils.logger import get_logger
-
-logger = get_logger(__name__)
-
 
 def get_file_hash(file_path: Path) -> str:
     hash_md5 = hashlib.md5()
@@ -17,10 +13,8 @@ def get_file_hash(file_path: Path) -> str:
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
 
-
 def get_file_extension(file_path: Path) -> str:
     return file_path.suffix.lower()
-
 
 def get_file_type(file_path: Path) -> str:
     mime_type, _ = mimetypes.guess_type(str(file_path))
@@ -47,7 +41,6 @@ def get_file_type(file_path: Path) -> str:
     
     return 'unknown'
 
-
 def validate_file(file_path: Path) -> Tuple[bool, Optional[str]]:
     if not file_path.exists():
         return False, "File does not exist"
@@ -69,7 +62,6 @@ def validate_file(file_path: Path) -> Tuple[bool, Optional[str]]:
         return False, "File is empty"
     
     return True, None
-
 
 def organize_upload(file_path: Path, original_name: Optional[str] = None) -> Path:
     file_type = get_file_type(file_path)
@@ -97,10 +89,7 @@ def organize_upload(file_path: Path, original_name: Optional[str] = None) -> Pat
             counter += 1
     
     shutil.copy2(file_path, target_path)
-    logger.info(f"File organized: {target_path}")
-    
     return target_path
-
 
 def get_all_uploaded_files() -> List[Path]:
     all_files = []
@@ -110,18 +99,14 @@ def get_all_uploaded_files() -> List[Path]:
     
     return sorted(all_files)
 
-
 def delete_file(file_path: Path) -> bool:
     try:
         if file_path.exists():
             file_path.unlink()
-            logger.info(f"Deleted file: {file_path}")
             return True
         return False
     except Exception as e:
-        logger.error(f"Error deleting file {file_path}: {e}")
         return False
-
 
 def clean_directory(directory: Path, pattern: str = "*") -> int:
     count = 0
@@ -133,16 +118,12 @@ def clean_directory(directory: Path, pattern: str = "*") -> int:
             elif item.is_dir() and item.name != '.gitkeep':
                 shutil.rmtree(item)
                 count += 1
-        logger.info(f"Cleaned {count} items from {directory}")
         return count
     except Exception as e:
-        logger.error(f"Error cleaning directory {directory}: {e}")
         return count
-
 
 def ensure_directory(path: Path) -> None:
     path.mkdir(parents=True, exist_ok=True)
-
 
 def get_relative_path(file_path: Path, base_path: Optional[Path] = None) -> str:
     base = base_path or settings.base_dir

@@ -4,9 +4,6 @@ from datetime import datetime
 import re
 
 from src.config import settings
-from src.utils import get_logger
-
-logger = get_logger(__name__)
 
 
 @dataclass
@@ -49,11 +46,6 @@ class TextChunker:
         self.chunk_size = chunk_size or settings.CHUNK_SIZE
         self.chunk_overlap = chunk_overlap or settings.CHUNK_OVERLAP
         self.min_chunk_size = min_chunk_size or settings.MIN_CHUNK_SIZE
-        
-        logger.info(
-            f"TextChunker initialized: chunk_size={self.chunk_size}, "
-            f"overlap={self.chunk_overlap}, min_size={self.min_chunk_size}"
-        )
     
     def chunk_text(
         self,
@@ -62,7 +54,6 @@ class TextChunker:
         metadata: Dict[str, Any] = None
     ) -> List[TextChunk]:
         if not text or not text.strip():
-            logger.warning(f"Empty text provided from {source_file}")
             return []
         
         text = self._clean_text(text)
@@ -72,7 +63,6 @@ class TextChunker:
         chunk_objects = []
         for i, chunk_text in enumerate(chunks):
             if len(chunk_text.strip()) < self.min_chunk_size:
-                logger.debug(f"Skipping small chunk {i} ({len(chunk_text)} chars)")
                 continue
             
             chunk_id = f"{source_file}::chunk_{i}"
@@ -95,7 +85,6 @@ class TextChunker:
             
             chunk_objects.append(chunk_obj)
         
-        logger.info(f"Created {len(chunk_objects)} chunks from {source_file}")
         return chunk_objects
     
     def _create_chunks(self, text: str) -> List[str]:
@@ -178,7 +167,6 @@ class TextChunker:
             
             chunk_objects.append(chunk_obj)
         
-        logger.info(f"Created {len(chunk_objects)} sentence-based chunks from {source_file}")
         return chunk_objects
     
     def _split_sentences(self, text: str) -> List[str]:
@@ -237,5 +225,4 @@ class TextChunker:
             
             chunk_objects.append(chunk_obj)
         
-        logger.info(f"Created {len(chunk_objects)} paragraph-based chunks from {source_file}")
         return chunk_objects

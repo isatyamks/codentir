@@ -2,9 +2,6 @@ from typing import List, Dict, Any, Optional
 from pathlib import Path
 
 from src.config import settings
-from src.utils import get_logger
-
-logger = get_logger(__name__)
 
 
 class EmbeddingModel:
@@ -21,10 +18,8 @@ class EmbeddingModel:
         try:
             from sentence_transformers import SentenceTransformer
             
-            logger.info(f"Loading embedding model: {self.model_name}")
             self.model = SentenceTransformer(self.model_name)
             self.embedding_type = "sentence-transformers"
-            logger.info(f"Embedding model loaded successfully")
         
         except ImportError:
             raise ImportError(
@@ -32,13 +27,11 @@ class EmbeddingModel:
                 "Install with: pip install sentence-transformers"
             )
         except Exception as e:
-            logger.error(f"Failed to load embedding model: {e}")
             raise
     
 
     def embed_text(self, text: str) -> List[float]:
         if not text or not text.strip():
-            logger.warning("Empty text provided for embedding")
             return []
         
         try:
@@ -48,7 +41,6 @@ class EmbeddingModel:
             return embedding
         
         except Exception as e:
-            logger.error(f"Error generating embedding: {e}")
             return []
     
     def embed_batch(self, texts: List[str]) -> List[List[float]]:
@@ -58,7 +50,6 @@ class EmbeddingModel:
         texts = [t for t in texts if t and t.strip()]
         
         if not texts:
-            logger.warning("No valid texts to embed")
             return []
         
         try:
@@ -70,18 +61,15 @@ class EmbeddingModel:
             )
             embeddings = embeddings.tolist()
             
-            logger.info(f"Generated {len(embeddings)} embeddings")
             return embeddings
         
         except Exception as e:
-            logger.error(f"Error generating batch embeddings: {e}")
             return []
     
     def get_embedding_dimension(self) -> int:
         try:
             return self.model.get_sentence_embedding_dimension()
         except Exception as e:
-            logger.error(f"Error getting embedding dimension: {e}")
             return 384
     
     def get_model_info(self) -> Dict[str, Any]:

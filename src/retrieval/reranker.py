@@ -1,10 +1,6 @@
 from typing import List, Dict, Any, Optional
 
 from src.config import settings
-from src.utils import get_logger
-
-logger = get_logger(__name__)
-
 
 class Reranker:
     
@@ -18,19 +14,12 @@ class Reranker:
         try:
             from sentence_transformers import CrossEncoder
             
-            logger.info(f"Loading reranker model: {self.model_name}")
             self.model = CrossEncoder(self.model_name)
-            logger.info("Reranker model loaded successfully")
         
         except ImportError:
-            logger.warning(
-                "sentence-transformers not available. "
-                "Reranking disabled. Install with: pip install sentence-transformers"
-            )
             self.model = None
         
         except Exception as e:
-            logger.error(f"Failed to load reranker model: {e}")
             self.model = None
     
     def rerank(
@@ -40,7 +29,6 @@ class Reranker:
         top_k: int = None
     ) -> List[Dict[str, Any]]:
         if not self.model:
-            logger.warning("Reranker not available, returning original results")
             return results
         
         if not results:
@@ -69,14 +57,9 @@ class Reranker:
             for i, result in enumerate(reranked_results):
                 result['new_rank'] = i + 1
             
-            logger.info(
-                f"Reranked {len(results)} results, returning top {len(reranked_results)}"
-            )
-            
             return reranked_results
         
         except Exception as e:
-            logger.error(f"Error during reranking: {e}")
             return results
     
     def is_available(self) -> bool:

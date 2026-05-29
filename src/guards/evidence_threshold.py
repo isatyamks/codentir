@@ -1,9 +1,6 @@
 from typing import Dict, Any, List
 
 from src.config import settings
-from src.utils import get_logger
-
-logger = get_logger(__name__)
 
 
 class EvidenceThreshold:
@@ -15,11 +12,6 @@ class EvidenceThreshold:
     ):
         self.min_confidence = min_confidence or settings.MIN_EVIDENCE_CONFIDENCE
         self.min_chunks = min_chunks
-        
-        logger.info(
-            f"EvidenceThreshold initialized: "
-            f"min_confidence={self.min_confidence}, min_chunks={self.min_chunks}"
-        )
     
     def check_evidence(
         self,
@@ -50,7 +42,6 @@ class EvidenceThreshold:
         scores = self._extract_scores(retrieval_results)
         
         if not scores:
-            logger.warning("No scores found in retrieval results")
             return {
                 "sufficient": False,
                 "reason": "no_scores",

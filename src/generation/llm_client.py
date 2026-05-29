@@ -2,9 +2,6 @@ from typing import Dict, Any, Optional, List
 from enum import Enum
 
 from src.config import settings
-from src.utils import get_logger
-
-logger = get_logger(__name__)
 
 
 class LLMProvider(Enum):
@@ -27,8 +24,6 @@ class LLMClient:
         
         self.client = None
         self._initialize_client()
-        
-        logger.info(f"LLMClient initialized: {self.provider} - {self.model}")
     
     def _detect_provider(self) -> str:
         if settings.GROQ_API_KEY:
@@ -46,7 +41,6 @@ class LLMClient:
             else:
                 raise ValueError(f"Unsupported provider: {self.provider}")
         except Exception as e:
-            logger.error(f"Failed to initialize LLM client: {e}")
             raise
     
     def _initialize_groq(self):
@@ -57,7 +51,6 @@ class LLMClient:
                 raise ValueError("GROQ_API_KEY not found in environment")
             
             self.client = Groq(api_key=settings.GROQ_API_KEY)
-            logger.info("Groq client initialized")
         except ImportError:
             raise ImportError(
                 "Groq library not installed. "
@@ -79,7 +72,6 @@ class LLMClient:
             return self._generate_groq(prompt, system_prompt, temp, tokens)
         
         except Exception as e:
-            logger.error(f"LLM generation failed: {e}")
             raise
     
     def _generate_groq(

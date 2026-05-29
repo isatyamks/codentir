@@ -3,11 +3,6 @@ from typing import Dict, Any, Optional
 from dataclasses import dataclass, field
 from datetime import datetime
 
-from src.utils.logger import get_logger
-
-logger = get_logger(__name__)
-
-
 @dataclass
 class PerformanceMetrics:
     operation: str
@@ -30,7 +25,6 @@ class PerformanceMetrics:
             "metadata": self.metadata
         }
 
-
 class MetricsCollector:
     def __init__(self):
         self._metrics: Dict[str, list[PerformanceMetrics]] = {}
@@ -38,19 +32,14 @@ class MetricsCollector:
     
     def start_operation(self, operation: str, **metadata) -> PerformanceMetrics:
         metric = PerformanceMetrics(operation=operation, metadata=metadata)
-        
         if operation not in self._metrics:
             self._metrics[operation] = []
-        
         self._metrics[operation].append(metric)
-        logger.debug(f"Started operation: {operation}")
-        
         return metric
     
     def increment_counter(self, counter_name: str, amount: int = 1) -> int:
         if counter_name not in self._counters:
             self._counters[counter_name] = 0
-        
         self._counters[counter_name] += amount
         return self._counters[counter_name]
     
@@ -60,10 +49,8 @@ class MetricsCollector:
     def get_operation_stats(self, operation: str) -> Dict[str, Any]:
         if operation not in self._metrics:
             return {}
-        
         metrics = self._metrics[operation]
         completed = [m for m in metrics if m.duration is not None]
-        
         if not completed:
             return {
                 "operation": operation,
@@ -71,9 +58,7 @@ class MetricsCollector:
                 "completed": 0,
                 "in_progress": len(metrics)
             }
-        
         durations = [m.duration for m in completed]
-        
         return {
             "operation": operation,
             "total_calls": len(metrics),
@@ -97,11 +82,8 @@ class MetricsCollector:
     def reset(self) -> None:
         self._metrics.clear()
         self._counters.clear()
-        logger.info("Metrics collector reset")
-
 
 metrics_collector = MetricsCollector()
-
 
 class timer:
     def __init__(self, operation: str, **metadata):
@@ -116,4 +98,3 @@ class timer:
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self.metric:
             duration = self.metric.stop()
-            logger.debug(f"Completed operation: {self.operation} in {duration:.3f}s")

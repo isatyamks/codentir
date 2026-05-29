@@ -3,9 +3,7 @@ from rank_bm25 import BM25Okapi
 import numpy as np
 
 from src.config import settings
-from src.utils import get_logger, timer
-
-logger = get_logger(__name__)
+from src.utils import timer
 
 
 class HybridSearch:
@@ -23,8 +21,6 @@ class HybridSearch:
         self.bm25_index = None
         self.document_ids = []
         self.documents = []
-        
-        logger.info(f"HybridSearch initialized with alpha={self.alpha}")
     
     def build_bm25_index(self) -> bool:
         try:
@@ -33,7 +29,6 @@ class HybridSearch:
                 total_docs = stats.get('total_documents', 0)
                 
                 if total_docs == 0:
-                    logger.warning("No documents in vector store to index")
                     return False
                 
                 all_docs = self.vector_store.collection.get()
@@ -45,11 +40,9 @@ class HybridSearch:
                 
                 self.bm25_index = BM25Okapi(tokenized_docs)
                 
-                logger.info(f"BM25 index built with {len(self.documents)} documents")
                 return True
         
         except Exception as e:
-            logger.error(f"Error building BM25 index: {e}")
             return False
     
     def bm25_search(
@@ -58,11 +51,9 @@ class HybridSearch:
         top_k: int = None
     ) -> List[Dict[str, Any]]:
         if self.bm25_index is None:
-            logger.warning("BM25 index not built, building now...")
             self.build_bm25_index()
         
         if self.bm25_index is None:
-            logger.error("Failed to build BM25 index")
             return []
         
         top_k = top_k or settings.TOP_K
@@ -85,11 +76,9 @@ class HybridSearch:
                             'rank': len(results) + 1
                         })
                 
-                logger.info(f"BM25 search returned {len(results)} results")
                 return results
         
         except Exception as e:
-            logger.error(f"Error in BM25 search: {e}")
             return []
     
     def vector_search(
@@ -104,7 +93,6 @@ class HybridSearch:
                 query_embedding = self.embedding_model.embed_text(query)
                 
                 if not query_embedding:
-                    logger.error("Failed to generate query embedding")
                     return []
                 
                 results = self.vector_store.similarity_search(
@@ -114,11 +102,9 @@ class HybridSearch:
                     threshold=0.0
                 )
                 
-                logger.info(f"Vector search returned {len(results)} results")
                 return results
         
         except Exception as e:
-            logger.error(f"Error in vector search: {e}")
             return []
     
     def hybrid_search(
@@ -186,15 +172,9 @@ class HybridSearch:
                         'metadata': scores['metadata']
                     })
                 
-                logger.info(
-                    f"Hybrid search returned {len(formatted_results)} results "
-                    f"(alpha={self.alpha})"
-                )
-                
                 return formatted_results
         
         except Exception as e:
-            logger.error(f"Error in hybrid search: {e}")
             return []
     
     def get_search_mode_results(

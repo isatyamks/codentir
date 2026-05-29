@@ -6,10 +6,9 @@ from src.generation.output_formatter import OutputFormatter
 from src.retrieval import Retriever
 from src.guards import GuardOrchestrator
 from src.config import get_generation_prompt, SYSTEM_PROMPT, CONTEXTUALIZE_QUERY_PROMPT
-from src.utils import get_logger, timer, metrics_collector
+from src.utils import timer, metrics_collector
 from src.utils.session_manager import SessionManager
 
-logger = get_logger(__name__)
 
 class Generator:
     def __init__(self):

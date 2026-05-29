@@ -8,9 +8,7 @@ from src.retrieval.hybrid_search import HybridSearch
 from src.retrieval.reranker import Reranker
 from src.ingestion import TextChunk, IngestionPipeline
 from src.config import settings
-from src.utils import get_logger, timer, metrics_collector
-
-logger = get_logger(__name__)
+from src.utils import timer, metrics_collector
 
 class Retriever:
     def __init__(self):

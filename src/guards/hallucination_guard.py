@@ -3,16 +3,12 @@ import json
 import re
 
 from src.config import settings
-from src.utils import get_logger
-
-logger = get_logger(__name__)
 
 
 class HallucinationGuard:
     
     def __init__(self, max_deviation: float = None):
         self.max_deviation = max_deviation or settings.MAX_CONTEXT_DEVIATION
-        logger.info(f"HallucinationGuard initialized with max_deviation={self.max_deviation}")
     
     def check_grounding(
         self,
@@ -73,12 +69,6 @@ class HallucinationGuard:
             "confidence": round(grounding_ratio, 4),
             "threshold": 1 - self.max_deviation
         }
-        
-        if not is_grounded:
-            logger.warning(
-                f"Potential hallucination detected: {grounding_ratio:.2%} grounded "
-                f"(threshold: {result['threshold']:.2%})"
-            )
         
         return result
     
@@ -186,7 +176,6 @@ class HallucinationGuard:
             if raise_error:
                 raise ValueError(message)
             else:
-                logger.warning(message)
                 return False
         
         return True

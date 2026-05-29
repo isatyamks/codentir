@@ -4,9 +4,6 @@ import tempfile
 
 from src.ingestion.parsers.base_parser import BaseParser, ParsedDocument
 from src.config import settings
-from src.utils import get_logger
-
-logger = get_logger(__name__)
 
 
 class ImageParser(BaseParser):
@@ -21,10 +18,9 @@ class ImageParser(BaseParser):
             try:
                 import easyocr
                 self.reader = easyocr.Reader([settings.OCR_LANGUAGE])
-                logger.info("Initialized EasyOCR")
                 return "easyocr"
             except ImportError:
-                logger.warning("EasyOCR not available, falling back to Tesseract")
+                pass
         
         try:
             import pytesseract
@@ -33,19 +29,13 @@ class ImageParser(BaseParser):
             if settings.TESSERACT_PATH and Path(settings.TESSERACT_PATH).exists():
                 pytesseract.pytesseract.tesseract_cmd = settings.TESSERACT_PATH
             
-            logger.info("Initialized Tesseract OCR")
             return "tesseract"
         
         except ImportError:
-            logger.warning(
-                "No OCR engine available. Install with: "
-                "pip install pytesseract pillow OR pip install easyocr"
-            )
             return "none"
     
     def parse(self, file_path: Path) -> ParsedDocument:
         self.validate_file(file_path)
-        logger.info(f"Parsing image file: {file_path.name}")
         
         if self.ocr_engine == "none":
             raise RuntimeError(
@@ -66,11 +56,6 @@ class ImageParser(BaseParser):
             "extracted_text_length": len(content),
             "word_count": len(content.split())
         })
-        
-        logger.info(
-            f"Successfully parsed {file_path.name} using {self.ocr_engine}: "
-            f"{metadata['word_count']} words extracted"
-        )
         
         return ParsedDocument(
             file_path=file_path,
@@ -96,7 +81,6 @@ class ImageParser(BaseParser):
             
             return text.strip()
         except Exception as e:
-            logger.error(f"Tesseract OCR failed: {e}")
             return ""
     
     def _extract_with_easyocr(self, file_path: Path) -> str:
@@ -105,7 +89,6 @@ class ImageParser(BaseParser):
             texts = [text for (bbox, text, conf) in result if conf > 0.3]
             return "\n".join(texts)
         except Exception as e:
-            logger.error(f"EasyOCR failed: {e}")
             return ""
     
     def _extract_image_metadata(self, file_path: Path) -> dict:
@@ -120,5 +103,4 @@ class ImageParser(BaseParser):
                     "image_mode": img.mode,
                 }
         except Exception as e:
-            logger.warning(f"Could not extract image metadata: {e}")
             return {}

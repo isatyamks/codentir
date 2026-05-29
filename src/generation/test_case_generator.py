@@ -3,9 +3,7 @@ from typing import Dict, Any, List, Optional
 from src.generation.llm_client import LLMClient
 from src.generation.output_formatter import OutputFormatter
 from src.config import get_generation_prompt, SYSTEM_PROMPT
-from src.utils import get_logger, timer
-
-logger = get_logger(__name__)
+from src.utils import timer
 
 
 class TestCaseGenerator:
@@ -13,7 +11,6 @@ class TestCaseGenerator:
     def __init__(self, llm_client: Optional[LLMClient] = None):
         self.llm_client = llm_client or LLMClient()
         self.formatter = OutputFormatter()
-        logger.info("TestCaseGenerator initialized")
     
     def generate(
         self,
@@ -25,8 +22,6 @@ class TestCaseGenerator:
         min_boundary: int = 2
     ) -> Dict[str, Any]:
        
-        logger.info(f"Generating test cases for query: '{query}'")
-        
         try:
             with timer("test_case_generation"):
                 context_text = self._format_context(context_chunks)
@@ -47,7 +42,6 @@ class TestCaseGenerator:
                 parsed = self.formatter.parse_json_response(response["content"])
                 
                 if not parsed:
-                    logger.error("Failed to parse test case response")
                     return self.formatter.create_error_response(
                         query=query,
                         error_type="parse_error",
@@ -55,7 +49,7 @@ class TestCaseGenerator:
                     )
                 
                 if not self.formatter.validate_test_cases(parsed):
-                    logger.warning("Test case validation failed")
+                    pass
                 
                 formatted = self.formatter.format_test_cases(parsed)
                 
@@ -66,17 +60,9 @@ class TestCaseGenerator:
                 formatted["model"] = response.get("model", "")
                 formatted["success"] = True
                 
-                logger.info(
-                    f"Generated {len(formatted['test_cases'])} test cases: "
-                    f"{test_stats['positive']} positive, "
-                    f"{test_stats['negative']} negative, "
-                    f"{test_stats['boundary']} boundary"
-                )
-                
                 return formatted
         
         except Exception as e:
-            logger.error(f"Test case generation failed: {e}")
             return self.formatter.create_error_response(
                 query=query,
                 error_type="generation_error",

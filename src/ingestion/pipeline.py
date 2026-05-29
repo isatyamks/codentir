@@ -7,9 +7,7 @@ from src.ingestion.file_handler import FileHandler
 from src.ingestion.chunker import TextChunker, TextChunk
 from src.ingestion.parsers import ParsedDocument
 from src.config import settings
-from src.utils import get_logger, get_all_uploaded_files, timer, metrics_collector
-
-logger = get_logger(__name__)
+from src.utils import get_all_uploaded_files, timer, metrics_collector
 
 
 class IngestionPipeline:
@@ -20,8 +18,6 @@ class IngestionPipeline:
         self.processed_dir = settings.base_dir / "data" / "processed"
         self.processed_dir.mkdir(parents=True, exist_ok=True)
         
-        logger.info("IngestionPipeline initialized")
-    
     def ingest_file(
         self,
         file_path: Path,
@@ -29,7 +25,6 @@ class IngestionPipeline:
     ) -> Dict[str, Any]:
 
         with timer(f"ingest_file_{file_path.name}"):
-            logger.info(f"Starting ingestion for: {file_path.name}")
             
             parsed_doc = self.file_handler.parse_file(file_path)
             if not parsed_doc:
@@ -56,10 +51,6 @@ class IngestionPipeline:
                 "metadata": parsed_doc.metadata
             }
             
-            logger.info(
-                f"[OK] Ingested {file_path.name}: {len(chunks)} chunks created"
-            )
-            
             return result
     
     def ingest_directory(
@@ -70,13 +61,9 @@ class IngestionPipeline:
         
         dir_path = directory or settings.upload_path
         
-        logger.info(f"Starting batch ingestion from: {dir_path}")
-        
         with timer(f"ingest_directory_{dir_path.name}"):
             files = get_all_uploaded_files() if directory is None else list(dir_path.rglob("*.*"))
             files = [f for f in files if f.is_file()]
-            
-            logger.info(f"Found {len(files)} files to process")
             
             results = []
             successful = 0
@@ -103,11 +90,6 @@ class IngestionPipeline:
                 "chunk_strategy": chunk_strategy,
                 "results": results
             }
-            
-            logger.info(
-                f"[OK] Batch ingestion complete: "
-                f"{successful}/{len(files)} files, {total_chunks} chunks"
-            )
             
             return summary
     
@@ -158,11 +140,9 @@ class IngestionPipeline:
             
             with open(metadata_file, 'w', encoding='utf-8') as f:
                 json.dump(parsed_doc.to_dict(), f, indent=2, ensure_ascii=False)
-            
-            logger.debug(f"Saved processed data: {chunks_file.name}")
         
         except Exception as e:
-            logger.error(f"Error saving processed data: {e}")
+            pass
     
     def get_ingestion_stats(self) -> Dict[str, Any]:
         return {
@@ -184,5 +164,4 @@ class IngestionPipeline:
         count += clean_directory(self.processed_dir / "chunks")
         count += clean_directory(self.processed_dir / "metadata")
         
-        logger.info(f"Cleared {count} processed files")
         return count

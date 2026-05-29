@@ -1,4 +1,3 @@
-from .logger import setup_logger, get_logger, logger
 from .file_utils import (
     get_file_hash,
     get_file_extension,
@@ -19,9 +18,6 @@ from .metrics import (
 )
 
 __all__ = [
-    "setup_logger",
-    "get_logger",
-    "logger",
     "get_file_hash",
     "get_file_extension",
     "get_file_type",

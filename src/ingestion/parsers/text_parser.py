@@ -2,9 +2,6 @@ from pathlib import Path
 from typing import Optional
 
 from src.ingestion.parsers.base_parser import BaseParser, ParsedDocument
-from src.utils import get_logger
-
-logger = get_logger(__name__)
 
 
 class TextParser(BaseParser):
@@ -15,7 +12,6 @@ class TextParser(BaseParser):
     
     def parse(self, file_path: Path) -> ParsedDocument:
         self.validate_file(file_path)
-        logger.info(f"Parsing text file: {file_path.name}")
         
         content = self._read_text_file(file_path)
         
@@ -27,11 +23,6 @@ class TextParser(BaseParser):
             "word_count": len(content.split()),
             "char_count": len(content)
         })
-        
-        logger.info(
-            f"Successfully parsed {file_path.name}: "
-            f"{metadata['line_count']} lines, {metadata['word_count']} words"
-        )
         
         return ParsedDocument(
             file_path=file_path,
@@ -48,7 +39,6 @@ class TextParser(BaseParser):
                 content = f.read()
             return content
         except UnicodeDecodeError:
-            logger.warning(f"Failed to read with {encoding}, trying utf-8")
             with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
                 return f.read()
     
