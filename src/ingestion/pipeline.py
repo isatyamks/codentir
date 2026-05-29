@@ -15,8 +15,6 @@ class IngestionPipeline:
     def __init__(self):
         self.file_handler = FileHandler()
         self.chunker = TextChunker()
-        self.processed_dir = settings.base_dir / "data" / "processed"
-        self.processed_dir.mkdir(parents=True, exist_ok=True)
         
     def ingest_file(
         self,
@@ -125,21 +123,13 @@ class IngestionPipeline:
         chunks: List[TextChunk]
     ) -> None:
         try:
-            filename_base = parsed_doc.file_path.stem
+            from src.utils.db_manager import DBManager
+            db = DBManager()
             
-            chunks_file = self.processed_dir / "chunks" / f"{filename_base}_chunks.json"
-            chunks_file.parent.mkdir(parents=True, exist_ok=True)
-            
+            doc_metadata = parsed_doc.to_dict()
             chunks_data = [chunk.to_dict() for chunk in chunks]
             
-            with open(chunks_file, 'w', encoding='utf-8') as f:
-                json.dump(chunks_data, f, indent=2, ensure_ascii=False)
-            
-            metadata_file = self.processed_dir / "metadata" / f"{filename_base}_metadata.json"
-            metadata_file.parent.mkdir(parents=True, exist_ok=True)
-            
-            with open(metadata_file, 'w', encoding='utf-8') as f:
-                json.dump(parsed_doc.to_dict(), f, indent=2, ensure_ascii=False)
+            db.save_processed_document(doc_metadata, chunks_data)
         
         except Exception as e:
             pass
@@ -158,10 +148,13 @@ class IngestionPipeline:
         }
     
     def clear_processed_data(self) -> int:
-        from src.utils import clean_directory
+        from src.utils.db_manager import DBManager
+        db = DBManager()
         
         count = 0
-        count += clean_directory(self.processed_dir / "chunks")
-        count += clean_directory(self.processed_dir / "metadata")
-        
+        if db.db is not None:
+            doc_result = db.documents.delete_many({})
+            chunk_result = db.chunks.delete_many({})
+            count = doc_result.deleted_count + chunk_result.deleted_count
+            
         return count

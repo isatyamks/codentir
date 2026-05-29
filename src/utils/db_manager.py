@@ -21,6 +21,7 @@ class DBManager:
                 cls._instance.use_cases = cls._instance.db["use_cases"]
                 cls._instance.test_cases = cls._instance.db["test_cases"]
                 cls._instance.clarifications = cls._instance.db["clarifications"]
+                cls._instance.chunks = cls._instance.db["chunks"]
                 
                 # Indexes for performance
                 cls._instance.documents.create_index("project_id")
@@ -28,6 +29,7 @@ class DBManager:
                 cls._instance.use_cases.create_index("project_id")
                 cls._instance.test_cases.create_index("project_id")
                 cls._instance.clarifications.create_index("project_id")
+                cls._instance.chunks.create_index("document_id")
             except Exception as e:
                 print(f"Error connecting to MongoDB: {e}")
                 cls._instance.db = None
@@ -72,6 +74,31 @@ class DBManager:
             "status": "Indexed",
             "created_at": self._now()
         })
+        return doc_id
+
+    def save_processed_document(self, metadata: Dict, chunks: List[Dict]) -> str:
+        doc_id = str(uuid.uuid4())
+        
+        # Save metadata
+        document_doc = {
+            "_id": doc_id,
+            "filename": metadata.get("file_name", "unknown"),
+            "metadata": metadata,
+            "created_at": self._now()
+        }
+        self.documents.insert_one(document_doc)
+        
+        # Save chunks
+        if chunks:
+            chunk_docs = []
+            for chunk in chunks:
+                chunk_doc = chunk.copy()
+                chunk_doc["document_id"] = doc_id
+                chunk_doc["created_at"] = self._now()
+                chunk_docs.append(chunk_doc)
+                
+            self.chunks.insert_many(chunk_docs)
+            
         return doc_id
 
     # --- Requirements ---
