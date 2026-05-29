@@ -9,21 +9,16 @@ import uuid
 
 from src.config import settings
 from src.generation import Generator
-from src.utils import get_logger
 
-logger = get_logger(__name__)
 
 generator = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global generator
-    logger.info("Starting Multimodal RAG API...")
     try:
         generator = Generator()
-        logger.info("API initialized successfully")
     except Exception as e:
-        logger.error(f"Failed to initialize API: {e}")
         raise
     yield
 
@@ -65,7 +60,6 @@ async def health_check():
             "statistics": stats
         }
     except Exception as e:
-        logger.error(f"Health check failed: {e}")
         return JSONResponse(
             status_code=503,
             content={"status": "unhealthy", "error": str(e)}
@@ -74,7 +68,6 @@ async def health_check():
 @app.post("/upload")
 async def upload_files(files: List[UploadFile] = File(...)):
     try:
-        logger.info(f"Received {len(files)} files for upload")
         uploaded_paths = []
         for file in files:
             ext = Path(file.filename).suffix.lower()
@@ -87,7 +80,6 @@ async def upload_files(files: List[UploadFile] = File(...)):
             with open(file_path, "wb") as buffer:
                 shutil.copyfileobj(file.file, buffer)
             uploaded_paths.append(file_path)
-            logger.info(f"Uploaded: {file.filename}")
         
         result = generator.retriever.index_documents(uploaded_paths)
         return {
@@ -98,7 +90,6 @@ async def upload_files(files: List[UploadFile] = File(...)):
             "files": [f.filename for f in files]
         }
     except Exception as e:
-        logger.error(f"Upload failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/query")
@@ -110,7 +101,6 @@ async def query_system(
     session_id: Optional[str] = Form(None)
 ):
     try:
-        logger.info(f"Processing query: {query} (mode: {mode}, session: {session_id})")
         if mode == "use_case":
             result = generator.generate_use_case(query, top_k, search_mode, session_id)
         elif mode == "test_cases":
@@ -124,7 +114,6 @@ async def query_system(
             )
         return result
     except Exception as e:
-        logger.error(f"Query processing failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/stats")
@@ -135,26 +124,22 @@ async def get_stats():
             "generator": generator_stats
         }
     except Exception as e:
-        logger.error(f"Stats retrieval failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.delete("/index")
 async def reset_index():
     try:
-        logger.warning("Resetting index...")
         generator.retriever.reset_index()
         return {
             "success": True,
             "message": "Index reset successfully"
         }
     except Exception as e:
-        logger.error(f"Index reset failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/session")
 async def create_session():
     session_id = str(uuid.uuid4())
-    logger.info(f"Created new session: {session_id}")
     return {"session_id": session_id}
 
 if __name__ == "__main__":
@@ -163,6 +148,5 @@ if __name__ == "__main__":
         "main:app",
         host=settings.API_HOST,
         port=settings.API_PORT,
-        reload=settings.API_RELOAD,
-        log_level=settings.LOG_LEVEL
+        reload=settings.API_RELOAD
     )
