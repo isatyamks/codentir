@@ -1,6 +1,3 @@
-from typing import Dict, Any
-
-
 SYSTEM_PROMPT = """You are an expert software testing assistant specialized in generating comprehensive test cases and use cases.
 
 Your task is to generate structured, detailed test cases and use cases based ONLY on the provided context.
@@ -16,8 +13,6 @@ CRITICAL RULES:
 
 Context will be provided to you, and you must use it as the sole source of truth.
 """
-
-
 RETRIEVAL_CONTEXT_TEMPLATE = """<context>
 Retrieved Evidence (Relevance Score: {avg_score:.2f}):
 
@@ -28,8 +23,6 @@ If the above context does not contain sufficient information to answer the query
 1. Ask specific clarifying questions, OR
 2. Explicitly state what assumptions you're making and what information is missing
 """
-
-
 USE_CASE_GENERATION_PROMPT = """Based on the provided context, generate a comprehensive use case for: "{query}"
 
 You MUST generate a JSON response with the following structure:
@@ -63,8 +56,6 @@ IMPORTANT:
 - If context is insufficient, populate clarifying_questions with specific questions
 - confidence should reflect how well the context supports your response (0.0 to 1.0)
 """
-
-
 TEST_CASE_GENERATION_PROMPT = """Based on the provided context, generate comprehensive test cases for: "{query}"
 
 You MUST generate a JSON response with the following structure:
@@ -106,8 +97,6 @@ IMPORTANT:
 - DO NOT create test cases for features not mentioned in the context
 - Reference specific evidence for each test case type
 """
-
-
 COMBINED_GENERATION_PROMPT = """Based on the provided context, generate both use cases AND test cases for: "{query}"
 
 You MUST generate a JSON response with the following structure:
@@ -153,8 +142,6 @@ The test cases should validate the use case with specific test scenarios.
 
 CRITICAL: Everything MUST be grounded in the provided context. Do not invent features.
 """
-
-
 INSUFFICIENT_CONTEXT_PROMPT = """The retrieved context does not contain sufficient information to answer: "{query}"
 
 Please generate a JSON response with clarifying questions:
@@ -171,7 +158,6 @@ Please generate a JSON response with clarifying questions:
 
 Be specific about what information is needed to proceed.
 """
-
 CONTEXTUALIZE_QUERY_PROMPT = """Given a chat history and the latest user question which might reference context in the chat history, formulate a standalone question which can be understood without the chat history. Do NOT answer the question, just reformulate it if needed and otherwise return it as is.
 
 Chat History:
@@ -180,30 +166,6 @@ Chat History:
 Latest Question: {question}
 
 Standalone Question:"""
-
-def get_generation_prompt(
-    query: str,
-    mode: str = "both",
-    context_chunks: str = "",
-    avg_score: float = 0.0
-) -> str:
-    context_section = RETRIEVAL_CONTEXT_TEMPLATE.format(
-        context_chunks=context_chunks,
-        avg_score=avg_score
-    )
-    
-    if mode == "use_case":
-        task_prompt = USE_CASE_GENERATION_PROMPT.format(query=query)
-    elif mode == "test_case":
-        task_prompt = TEST_CASE_GENERATION_PROMPT.format(query=query)
-    elif mode == "insufficient":
-        return SYSTEM_PROMPT + "\n\n" + INSUFFICIENT_CONTEXT_PROMPT.format(query=query)
-    else:
-        task_prompt = COMBINED_GENERATION_PROMPT.format(query=query)
-    
-    return SYSTEM_PROMPT + "\n\n" + context_section + "\n\n" + task_prompt
-
-
 HALLUCINATION_CHECK_PROMPT = """You are a fact-checker. Your task is to verify if the generated output is grounded in the provided context.
 
 Context:
@@ -222,8 +184,6 @@ Respond with JSON:
   "explanation": "brief explanation"
 }}
 """
-
-
 PROMPT_INJECTION_PATTERNS = [
     "ignore previous instructions",
     "disregard the context",
@@ -246,3 +206,22 @@ PROMPT_INJECTION_PATTERNS = [
     "ignore the above",
     "instead of",
 ]
+
+
+def get_generation_prompt(
+    query: str, mode: str = "both", context_chunks: str = "", avg_score: float = 0.0
+) -> str:
+    context_section = RETRIEVAL_CONTEXT_TEMPLATE.format(
+        context_chunks=context_chunks, avg_score=avg_score
+    )
+
+    if mode == "use_case":
+        task_prompt = USE_CASE_GENERATION_PROMPT.format(query=query)
+    elif mode == "test_case":
+        task_prompt = TEST_CASE_GENERATION_PROMPT.format(query=query)
+    elif mode == "insufficient":
+        return SYSTEM_PROMPT + "\n\n" + INSUFFICIENT_CONTEXT_PROMPT.format(query=query)
+    else:
+        task_prompt = COMBINED_GENERATION_PROMPT.format(query=query)
+
+    return SYSTEM_PROMPT + "\n\n" + context_section + "\n\n" + task_prompt
