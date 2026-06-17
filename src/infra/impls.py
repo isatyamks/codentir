@@ -81,6 +81,8 @@ class FileSystemDatasetReader(IDatasetReader):
 
             for entity_type in self._ENTITY_TYPES:
                 entity_dir = tenant_dir / entity_type
+                if entity_type == "slack_messages" and not entity_dir.exists():
+                    entity_dir = tenant_dir / "slack"
                 if not entity_dir.exists():
                     continue
                 for json_file in entity_dir.glob("*.json"):
@@ -128,6 +130,49 @@ class FileSystemDatasetReader(IDatasetReader):
             parsed[entity_type] = {}
             for artifact_id, data in raw[entity_type].items():
                 try:
+                    if entity_type == "tickets":
+                        fields = data.get("fields", {})
+                        data = {
+                            "id": data.get("id"),
+                            "tenant_id": data.get("tenant_id"),
+                            "key": data.get("key"),
+                            "summary": fields.get("summary", ""),
+                            "description": fields.get("description", ""),
+                            "issuetype": fields.get("issuetype", {}).get("name", ""),
+                            "status": fields.get("status", {}).get("name", ""),
+                            "assignee_id": fields.get("assignee"),
+                            "created_at": fields.get("created"),
+                            "updated_at": fields.get("updated"),
+                            "requirement_id": fields.get("customfield_requirement_id"),
+                            "service_ids": fields.get("customfield_service_ids", [])
+                        }
+                    elif entity_type == "commits":
+                        commit = data.get("commit", {})
+                        author = commit.get("author", {})
+                        data = {
+                            "id": data.get("id"),
+                            "tenant_id": data.get("tenant_id"),
+                            "sha": data.get("sha"),
+                            "message": commit.get("message", ""),
+                            "author_name": author.get("name", ""),
+                            "date": author.get("date"),
+                            "repository": data.get("repository", ""),
+                            "files_changed": commit.get("files_changed", []),
+                            "diff_summary": commit.get("diff_summary")
+                        }
+                    elif entity_type == "slack_messages":
+                        from datetime import datetime
+                        ts = data.get("ts")
+                        dt = datetime.fromtimestamp(float(ts)) if ts else datetime.now()
+                        data = {
+                            "id": data.get("id"),
+                            "tenant_id": data.get("tenant_id"),
+                            "channel": data.get("channel", ""),
+                            "text": data.get("text", ""),
+                            "user_id": data.get("user") or data.get("user_id", ""),
+                            "timestamp": dt
+                        }
+
                     parsed[entity_type][artifact_id] = model_cls(**data)
                 except Exception:
                     pass  # Skip malformed records

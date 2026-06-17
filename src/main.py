@@ -12,7 +12,7 @@ from src.data.graph import GraphService
 from src.data.retrieval import RetrievalService
 from src.engine.analysis.impact import ImpactService
 from src.engine.workflow.engine import InvestigationWorkflowEngine
-from src.engine.orchestrator import ValidationOrchestrator
+from src.core.validation import ValidationOrchestrator
 
 
 def main():

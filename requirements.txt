@@ -1,27 +1,32 @@
 # Core Dependencies
-pydantic>=2.0.0
-networkx>=3.0
-sentence-transformers>=2.2.2
-rank-bm25>=0.2.2
-numpy>=1.24.0
-chromadb>=0.4.0
+pydantic
+networkx
+sentence-transformers
+rank-bm25
+numpy
+chromadb
 
 # LLM & Orchestration
-langgraph>=0.0.26
-langchain-core>=0.1.30
-langsmith>=0.1.0
-groq>=0.4.2
+langgraph
+langchain-core
+langsmith
+groq
 
 # Observability
-opentelemetry-api>=1.20.0
-opentelemetry-sdk>=1.20.0
+opentelemetry-api
+opentelemetry-sdk
 
 # Utilities
-python-dotenv>=1.0.0
+python-dotenv
+
 
 # Dev Dependencies
-black>=23.0.0
-isort>=5.0.0
-autoflake>=2.0.0
-flake8>=6.0.0
-mypy>=1.0.0
+black
+isort
+autoflake
+flake8
+mypy
+
+# Generator Dependencies
+faker
+json-repair
